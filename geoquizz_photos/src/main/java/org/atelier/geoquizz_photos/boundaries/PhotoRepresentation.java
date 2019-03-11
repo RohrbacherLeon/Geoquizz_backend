@@ -17,4 +17,5 @@ public class PhotoRepresentation {
 		this.pr = pr;
 	}
 	
+	
 }

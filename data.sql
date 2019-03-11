@@ -1,6 +1,15 @@
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
+DROP TABLE IF EXISTS users;
+CREATE TABLE users (
+    id varchar(255) not null,
+    `login` varchar(255),
+    `password` varchar(255),
+    token varchar(255),    
+    primary key (id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS series;
 CREATE TABLE series(
     id varchar(255) not null,
@@ -19,6 +28,7 @@ CREATE TABLE photos(
     latitude float,
     `url` varchar(255),
     serie_id varchar(255) NOT NULL,
+    user_id varchar(255) NOT NULL,
     primary key (id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -30,15 +40,6 @@ CREATE TABLE parties(
     `status` varchar(255),
     score int,
     serie_id varchar(255) NOT NULL,
-    primary key (id)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS users;
-CREATE TABLE users (
-    id varchar(255) not null,
-    `login` varchar(255),
-    `password` varchar(255),
-    token varchar(255),    
     primary key (id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
