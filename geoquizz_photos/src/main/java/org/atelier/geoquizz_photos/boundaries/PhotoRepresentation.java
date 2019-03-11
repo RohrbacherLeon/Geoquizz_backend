@@ -16,4 +16,5 @@ public class PhotoRepresentation {
 	public PhotoRepresentation(PhotoResource pr) {
 		this.pr = pr;
 	}
+	
 }
