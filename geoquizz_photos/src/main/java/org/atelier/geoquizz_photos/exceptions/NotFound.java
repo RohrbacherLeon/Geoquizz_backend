@@ -11,4 +11,5 @@ public class NotFound extends RuntimeException {
 	public NotFound(String msg) {
 		super("Ressource introuvable : " + msg, null, false, false);
 	}
+	
 }
