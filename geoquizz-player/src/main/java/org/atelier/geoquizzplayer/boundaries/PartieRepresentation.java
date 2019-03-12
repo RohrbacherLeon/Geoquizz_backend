@@ -3,12 +3,14 @@ package org.atelier.geoquizzplayer.boundaries;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.atelier.geoquizzplayer.EntityMirror.PartieMirroir;
 import org.atelier.geoquizzplayer.EntityMirror.PartieMirroirWithToken;
 import org.atelier.geoquizzplayer.entity.Partie;
+import org.atelier.geoquizzplayer.entity.Photo;
 import org.atelier.geoquizzplayer.exception.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.ExposesResourceFor;
@@ -53,11 +55,11 @@ public class PartieRepresentation {
     	PartieMirroir cm = null;
     	
     	if(!showToken) {
-    		cm = new PartieMirroir(c.getId(), c.getNb_photos(), c.getStatus(), c.getScore(), c.getJoueur());
+    		cm = new PartieMirroir(c.getId(), c.getNb_photos(), c.getStatus(), c.getScore(), c.getJoueur(), c.getPhotos());
     	}else {
     		
     		if(showToken) {
-        		cm = new PartieMirroirWithToken(c.getId(), c.getNb_photos(), c.getStatus(), c.getScore(), c.getJoueur(), c.getToken());
+        		cm = new PartieMirroirWithToken(c.getId(), c.getNb_photos(), c.getStatus(), c.getScore(), c.getJoueur(), c.getPhotos(), c.getToken());
         	}
     	}
 	   	 
@@ -105,6 +107,14 @@ public class PartieRepresentation {
     	}
     	
         throw new NotFound("Partie not found");
+    }
+	
+	@GetMapping("/{id}/photos")
+    public ResponseEntity<?> getPhotos(@PathVariable("id") String id)throws BadRequest {
+		return Optional.ofNullable(pr.findById(id))
+				.filter(Optional::isPresent)
+				.map(partie -> new ResponseEntity<>(partie.get().getPhotos(), HttpStatus.OK))
+				.orElseThrow(() -> new NotFound("Photos introuvables"));
     }
 	
 	@DeleteMapping(value="/{id}")
