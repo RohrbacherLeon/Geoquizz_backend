@@ -76,11 +76,6 @@ public class SerieRepresentation {
 		} else {
 			throw new NotFound("/series/" + id + "/photos");
 		}
-		/*return Optional.ofNullable(sr.findById(id))
-                .filter(Optional::isPresent)
-                .map(serie -> new ResponseEntity<>(serie.get().getPhotos(), HttpStatus.OK))
-                .orElseThrow(() -> new NotFound("Ressource introuvable : categories/" + id + "/sandwiches"));
-                */
 	}
 	
 	@PostMapping
