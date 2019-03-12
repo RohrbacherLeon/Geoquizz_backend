@@ -1,21 +1,20 @@
 package org.atelier.geoquizz_photos.boundaries;
 
-import org.atelier.geoquizz_photos.entities.Photo;
+import org.atelier.geoquizz_photos.entities.User;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value="/photos", produces=MediaType.APPLICATION_JSON_VALUE)
-@ExposesResourceFor(Photo.class)
-public class PhotoRepresentation {
+@RequestMapping(value="/users", produces=MediaType.APPLICATION_JSON_VALUE)
+@ExposesResourceFor(User.class)
+public class UserRepresentation {
 
-	private final PhotoResource pr;
+	private final UserResource ur;
 	
-	public PhotoRepresentation(PhotoResource pr) {
-		this.pr = pr;
+	public UserRepresentation(UserResource ur) {
+		this.ur = ur;
 	}
-	
 	
 }
