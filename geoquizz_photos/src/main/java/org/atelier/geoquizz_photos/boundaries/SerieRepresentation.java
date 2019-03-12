@@ -4,10 +4,12 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.atelier.geoquizz_photos.entities.Serie;
 import org.atelier.geoquizz_photos.exceptions.BadRequest;
+import org.atelier.geoquizz_photos.exceptions.NotFound;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
@@ -16,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,6 +56,31 @@ public class SerieRepresentation {
 	@GetMapping
 	public ResponseEntity<?> getAllSeries() {
 		return new ResponseEntity<>(seriesToResource(sr.findAll()), HttpStatus.OK);
+	}
+	
+	@GetMapping(value="/{id}")
+	public ResponseEntity<?> getSerie(@PathVariable("id") String id){
+		Optional<Serie> serie = sr.findById(id);
+		if(serie.isPresent()) {
+			return new ResponseEntity<>(serieToResource(serie.get(), false), HttpStatus.OK);
+		} else {
+			throw new NotFound("/series/" + id);
+		}
+	}
+	
+	@GetMapping(value="/{id}/photos")
+	public ResponseEntity<?> getAllPhotosOfSerie(@PathVariable("id") String id){
+		Optional<Serie> serie = sr.findById(id);
+		if(serie.isPresent()) {
+			return new ResponseEntity<>(serie.get().getPhotos(), HttpStatus.OK);
+		} else {
+			throw new NotFound("/series/" + id + "/photos");
+		}
+		/*return Optional.ofNullable(sr.findById(id))
+                .filter(Optional::isPresent)
+                .map(serie -> new ResponseEntity<>(serie.get().getPhotos(), HttpStatus.OK))
+                .orElseThrow(() -> new NotFound("Ressource introuvable : categories/" + id + "/sandwiches"));
+                */
 	}
 	
 	@PostMapping

@@ -7,6 +7,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name="photos")
 public class Photo {
@@ -18,6 +20,7 @@ public class Photo {
 	private float latitude;
 	private String url;
 	
+	@JsonBackReference
 	@ManyToOne(fetch=FetchType.LAZY, optional=false)
 	@JoinColumn(name="serie_id", nullable=false)
 	private Serie serie;
