@@ -99,6 +99,11 @@ public class PartieRepresentation {
 	
 	@GetMapping("/{id}")
     public ResponseEntity<?> getPartieWithIdAndToken(@PathVariable("id") String id, @RequestHeader(value = "x-token") String token)throws BadRequest {
+		
+		if(token.isEmpty()) {
+			throw new BadRequest("Token empty");
+		}
+		
 		Optional<Partie> partie = pr.findByIdAndToken(id, token);
     	
     	if(partie.isPresent()) {
@@ -118,6 +123,11 @@ public class PartieRepresentation {
 	
 	@PutMapping("/{id}/end")
     public ResponseEntity<?> updatePartie(@RequestBody Partie partieUpdated, @PathVariable("id") String id, @RequestHeader(value = "x-token") String token)throws BadRequest {
+		
+		if(token.isEmpty()) {
+			throw new BadRequest("Token empty");
+		}
+		
 		Optional<Partie> partie = pr.findByIdAndToken(id, token);
 		
 		if(partie.isPresent()) {
