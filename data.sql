@@ -8,6 +8,7 @@ CREATE TABLE parties(
     nb_photos int,
     `status` varchar(255),
     score int,
+    `joueur` varchar(255),
     primary key (id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -39,3 +40,27 @@ CREATE TABLE users (
     token varchar(255),    
     primary key (id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS partie_photo;
+CREATE TABLE partie_photo (
+  partie_id varchar(255) NOT NULL,
+  photo_id varchar(255) NOT NULL,
+  CONSTRAINT FK65453245 FOREIGN KEY (partie_id) REFERENCES parties (id),
+  CONSTRAINT FK98243789 FOREIGN KEY (photo_id) REFERENCES photos (id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO photos values (1, "photo1", 40.5, 40.4, "url");
+INSERT INTO photos values (2, "photo2", 40.5, 40.4, "url");
+INSERT INTO photos values (3, "photo3", 40.5, 40.4, "url");
+INSERT INTO photos values (4, "photo4", 40.5, 40.4, "url");
+
+INSERT INTO parties values (1, "token", 0, "Créée", 0, "toto");
+INSERT INTO parties values (2, "token2", 0, "Créée", 0, "toto2");
+
+INSERT INTO partie_photo values (1, 1);
+INSERT INTO partie_photo values (1, 2);
+
+INSERT INTO partie_photo values (2, 1);
+INSERT INTO partie_photo values (2, 2);
+INSERT INTO partie_photo values (2, 3);
+INSERT INTO partie_photo values (2, 4);

@@ -1,6 +1,10 @@
 package org.atelier.geoquizzplayer.EntityMirror;
 
 
+import java.util.List;
+import java.util.Set;
+
+import org.atelier.geoquizzplayer.entity.Photo;
 import org.springframework.hateoas.core.Relation;
 
 
@@ -11,8 +15,8 @@ public class PartieMirroirWithToken extends PartieMirroir {
     private String token = "";
 
     
-    public PartieMirroirWithToken (String id, int photos, String status, int score, String joueur, String token ) {
-    	super(id, photos, status, score, joueur);
+    public PartieMirroirWithToken (String id, int nb, String status, int score, String joueur, Set<Photo> photos, String token ) {
+    	super(id, nb, status, score, joueur, photos);
     	this.token = token;
     }
 
