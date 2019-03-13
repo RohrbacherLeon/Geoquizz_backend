@@ -1,7 +1,5 @@
 package org.atelier.geoquizzplayer.entity;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -11,9 +9,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 
 @Entity
@@ -24,22 +23,31 @@ public class Partie {
 	private String id;
 	private String token;
 	private int nb_photos;
-	private String status = "Créée";
+	private int status;
 	private int score;
 	private String joueur;
 	
-	@ManyToMany(cascade = CascadeType.ALL)
+	@ManyToOne(fetch=FetchType.LAZY, optional=false)
+	@JoinColumn(name="serie_id", nullable=false)
+	@JsonBackReference
+	private Serie serie;
+	
+	
+
+	@ManyToMany(cascade = CascadeType.ALL, fetch=FetchType.LAZY)
     @JoinTable(name = "partie_photo", 
       joinColumns = @JoinColumn(name = "partie_id", referencedColumnName = "id"), 
       inverseJoinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "id"))
-    @JsonIgnore
     private Set<Photo> photos;
 	
-	public Partie () {
+	Partie () {
+		
 	}
 	
-	public Partie(String joueur) {
+	public Partie(String joueur, Serie serie, Set<Photo> photos) {
 		this.joueur = joueur;
+		this.serie = serie;
+		this.photos = photos;
 	}
 
 	public String getId() {
@@ -66,11 +74,11 @@ public class Partie {
 		this.nb_photos = nb_photos;
 	}
 
-	public String getStatus() {
+	public int getStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
+	public void setStatus(int status) {
 		this.status = status;
 	}
 
@@ -97,4 +105,12 @@ public class Partie {
     public void setPhotos(Set<Photo> photos) {
         this.photos = photos;
     }
+    
+    public Serie getSerie() {
+		return serie;
+	}
+
+	public void setSerie(Serie serie) {
+		this.serie = serie;
+	}
 }
