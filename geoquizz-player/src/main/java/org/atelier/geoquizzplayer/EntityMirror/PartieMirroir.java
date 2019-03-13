@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.atelier.geoquizzplayer.entity.Photo;
+import org.atelier.geoquizzplayer.entity.Serie;
 import org.springframework.hateoas.core.Relation;
 
 @Relation(collectionRelation = "parties")
@@ -11,19 +12,21 @@ public class PartieMirroir {
 
 	private String id;
 	private int nb_photos;
-	private String status = "Créée";
+	private int status;
 	private int score;
 	private String joueur;
 	private Set<Photo> photos;
+	private Serie serie;
 
 
-	public PartieMirroir(String id, int nb, String status, int score, String joueur, Set<Photo> set) {
+	public PartieMirroir(String id, int nb, int status, int score, String joueur, Set<Photo> set, Serie serie) {
 		this.id = id;
 		this.nb_photos = nb;
 		this.status = status;
 		this.score = score;
 		this.joueur = joueur;
 		this.setPhotos(set);
+		this.setSerie(serie);
 	}
     
    
@@ -49,13 +52,13 @@ public class PartieMirroir {
 
 
 
-	public String getStatus() {
+	public int getStatus() {
 		return status;
 	}
 
 
 
-	public void setStatus(String status) {
+	public void setStatus(int status) {
 		this.status = status;
 	}
 
@@ -93,6 +96,18 @@ public class PartieMirroir {
 
 	public void setPhotos(Set<Photo> photos) {
 		this.photos = photos;
+	}
+
+
+
+	public Serie getSerie() {
+		return serie;
+	}
+
+
+
+	public void setSerie(Serie serie) {
+		this.serie = serie;
 	}
     
     

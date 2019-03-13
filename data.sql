@@ -23,12 +23,12 @@ CREATE TABLE `series`(
 DROP TABLE IF EXISTS `photos`;
 CREATE TABLE `photos`(
     `id` varchar(255) not null,
-    `desc` varchar(255),
+    `description` varchar(255),
     `longitude` float,
     `latitude` float,
     `url` varchar(255),
     `serie_id` varchar(255) NOT NULL,
-    `user_id` varchar(255) NOT NULL,
+    `user_id` varchar(255),
     primary key (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -37,7 +37,7 @@ CREATE TABLE `parties`(
     `id` varchar(255) NOT NULL,
     `token` varchar(255),
     `nb_photos` int,
-    `status` varchar(255),
+    `status` int,
     `score` int,
     `serie_id` varchar(255) NOT NULL,
     `joueur` varchar(255),
@@ -59,18 +59,12 @@ INSERT INTO `series`(`id`, `ville`, `map_long`, `map_lat`, `dist`) VALUES ('1', 
 ('2', 'PAM', 41.2, 48, 1);
 
 
-INSERT INTO photos values (1, "photo1", 40.5, 40.4, "url", 1,1);
-INSERT INTO photos values (2, "photo2", 40.5, 40.4, "url", 1,1);
-INSERT INTO photos values (3, "photo3", 40.5, 40.4, "url", 1,1);
-INSERT INTO photos values (4, "photo4", 40.5, 40.4, "url", 2,1);
+INSERT INTO photos values (1, "photo1", 40.5, 40.4, "/images/gare.jpg", 1,1);
+INSERT INTO photos values (2, "photo2", 40.5, 40.4, "/images/basilique_saint_epvre.jpg", 1,1);
+INSERT INTO photos values (3, "photo3", 40.5, 40.4, "/images/hopital_central", 1,1);
+INSERT INTO photos values (4, "photo4", 40.5, 40.4, "/images/iut_nc", 1,1);
 
-INSERT INTO parties values (1, "token", 0, "Créée", 0, 1, "toto");
-INSERT INTO parties values (2, "token2", 0, "Créée", 0, 2, "toto2");
+INSERT INTO parties values (1, "token", 0, 1, 0, 1, "toto");
 
 INSERT INTO partie_photo values (1, 1);
 INSERT INTO partie_photo values (1, 2);
-
-INSERT INTO partie_photo values (2, 1);
-INSERT INTO partie_photo values (2, 2);
-INSERT INTO partie_photo values (2, 3);
-INSERT INTO partie_photo values (2, 4);
