@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.atelier.geoquizzplayer.EntityMirror.PartieMirroir;
 import org.atelier.geoquizzplayer.EntityMirror.PartieMirroirWithToken;
 import org.atelier.geoquizzplayer.entity.Partie;
+import org.atelier.geoquizzplayer.entity.Photo;
 import org.atelier.geoquizzplayer.exception.NotFound;
 import org.atelier.geoquizzplayer.exception.BadRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,21 +55,18 @@ public class PartieRepresentation {
     	PartieMirroir cm = null;
     	
     	if(!showToken) {
-    		cm = new PartieMirroir(c.getId(), c.getNb_photos(), c.getStatus(), c.getScore(), c.getJoueur(), c.getPhotos());
+    		cm = new PartieMirroir(c.getId(), c.getNb_photos(), c.getStatus(), c.getScore(), c.getJoueur(), c.getPhotos(), c.getSerie());
     	}else {
-    		
-    		if(showToken) {
-        		cm = new PartieMirroirWithToken(c.getId(), c.getNb_photos(), c.getStatus(), c.getScore(), c.getJoueur(), c.getPhotos(), c.getToken());
-        	}
+    		cm = new PartieMirroirWithToken(c.getId(), c.getNb_photos(), c.getStatus(), c.getScore(), c.getJoueur(), c.getPhotos(), c.getSerie(), c.getToken());
+        	
     	}
-	   	 
     	return cm;
     }
 	
-	private Resource<PartieMirroir> partieToResource(Partie commande, Boolean showToken, Boolean collection) {
+	private Resource<PartieMirroir> partieToResource(Partie partie, Boolean showToken, Boolean collection) {
    	 
-        Link selfLink      = linkTo(PartieRepresentation.class).slash(commande.getId()).withSelfRel();
-   	 	PartieMirroir cm = partieToMirror(commande, showToken);
+        Link selfLink      = linkTo(PartieRepresentation.class).slash(partie.getId()).withSelfRel();
+   	 	PartieMirroir cm = partieToMirror(partie, showToken);
 
         Link collectionLink = linkTo(PartieRepresentation.class).withRel("collection");
         return new Resource<>(cm, selfLink, collectionLink);
@@ -80,8 +78,8 @@ public class PartieRepresentation {
 	
 	@GetMapping
     public ResponseEntity<?> getAllParties() throws BadRequest {
-		Iterable<Partie> allCategories = pr.findAll();
-        return new ResponseEntity<>(allCategories, HttpStatus.OK);
+		Iterable<Partie> allParties = pr.findAll();
+        return new ResponseEntity<>(allParties, HttpStatus.OK);
     }
 	
 	@PostMapping
@@ -90,6 +88,12 @@ public class PartieRepresentation {
 		
 		String jwtToken = generateToken();
         partie.setToken(jwtToken);
+        
+        for (Photo photo : partie.getPhotos()) {
+        	if(!photo.getSerie().getId().equals(partie.getSerie().getId())) {
+        		throw new BadRequest("La photo n'est pas dans la bonne série");
+        	}
+        }
         
         Partie newPartie = pr.save(partie);
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -121,8 +125,8 @@ public class PartieRepresentation {
 				.orElseThrow(() -> new NotFound("Photos introuvables"));
     }
 	
-	@PutMapping("/{id}/end")
-    public ResponseEntity<?> updatePartie(@RequestBody Partie partieUpdated, @PathVariable("id") String id, @RequestHeader(value = "x-token") String token)throws BadRequest {
+	@PutMapping("/{id}")
+    public ResponseEntity<?> updatePartie(@RequestBody Partie updatedPartie, @PathVariable("id") String id, @RequestHeader(value = "x-token") String token)throws BadRequest {
 		
 		if(token.isEmpty()) {
 			throw new BadRequest("Token empty");
@@ -132,22 +136,29 @@ public class PartieRepresentation {
 		
 		if(partie.isPresent()) {
     		Partie p = partie.get();
-    		System.out.println(p.getStatus() != null);
-    		System.out.println(p.getStatus());
+    		HttpHeaders responseHeaders = new HttpHeaders();
     		
-    		if(p.getStatus() != null) {
-    			p.setStatus(partieUpdated.getStatus());
+    		if(p.getStatus() <= updatedPartie.getStatus()) {  
+    			p.setStatus(updatedPartie.getStatus());
+    			p.setJoueur(updatedPartie.getJoueur());
+    			p.setScore(updatedPartie.getScore());
+    			p.setNb_photos(updatedPartie.getNb_photos());
+    			System.out.println(updatedPartie.getPhotos());
+    			if(updatedPartie.getPhotos() != null)
+    				p.setPhotos(updatedPartie.getPhotos());
+    			
+    			if(updatedPartie.getSerie() != null)
+    				p.setSerie(updatedPartie.getSerie());
+    			
     			pr.save(p);
-                HttpHeaders responseHeaders = new HttpHeaders();
                 responseHeaders.setLocation(linkTo(PartieRepresentation.class).slash(p.getId()).toUri());
                 return new ResponseEntity<>(partieToResource(p, false, true), responseHeaders, HttpStatus.OK);
     		}else {
-    			throw new BadRequest("Impossible de payer cette commande");
+    			throw new BadRequest("Erreur sur les status");
     		}
-    		
     	}
     	
-    	throw new NotFound("Commande inexistante");
+    	throw new NotFound("Partie inexistante");
     }
 	
 	@DeleteMapping(value="/{id}")
