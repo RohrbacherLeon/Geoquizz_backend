@@ -27,6 +27,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 @RestController
 @RequestMapping(value="/series", produces=MediaType.APPLICATION_JSON_VALUE)
 @ExposesResourceFor(Serie.class)
@@ -56,13 +59,15 @@ public class SerieRepresentation {
 		return new Resources<>(serieResources, selfLink);
 	}
 	
+	@ApiOperation(value = "Récupèrer toutes les series existantes")
 	@GetMapping
 	public ResponseEntity<?> getAllSeries() {
 		return new ResponseEntity<>(seriesToResource(sr.findAll()), HttpStatus.OK);
 	}
 	
+	@ApiOperation(value = "Récupèrer une série")
 	@GetMapping(value="/{id}")
-	public ResponseEntity<?> getSerie(@PathVariable("id") String id){
+	public ResponseEntity<?> getSerie(@ApiParam("Id de la série") @PathVariable("id") String id){
 		Optional<Serie> serie = sr.findById(id);
 		if(serie.isPresent()) {
 			return new ResponseEntity<>(serieToResource(serie.get(), false), HttpStatus.OK);
@@ -71,8 +76,9 @@ public class SerieRepresentation {
 		}
 	}
 	
+	@ApiOperation(value = "Récupèrer toutes les photos d'une série")
 	@GetMapping(value="/{id}/photos")
-	public ResponseEntity<?> getAllPhotosOfSerie(@PathVariable("id") String id, @RequestParam(value="random")boolean random, @RequestParam(value="limit")int limit){
+	public ResponseEntity<?> getAllPhotosOfSerie(@ApiParam("Id de la série") @PathVariable("id") String id, @ApiParam("Mélanger les images") @RequestParam(value="random")boolean random, @ApiParam("Nombre de photo voulus") @RequestParam(value="limit")int limit){
 		Optional<Serie> serie = sr.findById(id);
 		
 		if(!random) {
@@ -95,6 +101,7 @@ public class SerieRepresentation {
 		}
 	}
 	
+	@ApiOperation(value = "Créer série")
 	@PostMapping
 	public ResponseEntity<?> postSerie(@RequestBody Serie serie){
 		serie.setId(UUID.randomUUID().toString());

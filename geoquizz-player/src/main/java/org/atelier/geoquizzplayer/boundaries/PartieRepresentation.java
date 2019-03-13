@@ -28,13 +28,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-
+@Api("API pour les opérations CRUD sur les parties.")
 @RestController
 @RequestMapping(value="/parties", produces = MediaType.APPLICATION_JSON_VALUE)
 @ExposesResourceFor(Partie.class)
@@ -76,12 +79,14 @@ public class PartieRepresentation {
 		this.pr = pr;
 	}
 	
+	@ApiOperation(value = "Récupère toutes les parties")
 	@GetMapping
     public ResponseEntity<?> getAllParties() throws BadRequest {
 		Iterable<Partie> allParties = pr.findAll();
         return new ResponseEntity<>(allParties, HttpStatus.OK);
     }
 	
+	@ApiOperation(value = "Créer une partie")
 	@PostMapping
     public ResponseEntity<?> postPartie(@RequestBody Partie partie) throws BadRequest {
 		partie.setId(UUID.randomUUID().toString());
@@ -101,8 +106,10 @@ public class PartieRepresentation {
         return new ResponseEntity<>(newPartie,responseHeaders,HttpStatus.CREATED);
     }
 	
+	@ApiOperation(value = "Récupèrer les informations d'une partie")
+	@ApiParam(value="id.test")
 	@GetMapping("/{id}")
-    public ResponseEntity<?> getPartieWithIdAndToken(@PathVariable("id") String id, @RequestHeader(value = "x-token") String token)throws BadRequest {
+    public ResponseEntity<?> getPartieWithIdAndToken(@ApiParam("Id de la partie") @PathVariable("id") String id, @ApiParam("Token de la partie") @RequestHeader(value = "x-token") String token)throws BadRequest {
 		
 		if(token.isEmpty()) {
 			throw new BadRequest("Token empty");
@@ -117,6 +124,7 @@ public class PartieRepresentation {
         throw new NotFound("Partie not found");
     }
 	
+	@ApiOperation(value = "Récupèrer les photos d'une partie")
 	@GetMapping("/{id}/photos")
     public ResponseEntity<?> getPhotos(@PathVariable("id") String id)throws BadRequest {
 		return Optional.ofNullable(pr.findById(id))
@@ -125,8 +133,9 @@ public class PartieRepresentation {
 				.orElseThrow(() -> new NotFound("Photos introuvables"));
     }
 	
+	@ApiOperation(value = "Mettre à jour une partie")
 	@PutMapping("/{id}")
-    public ResponseEntity<?> updatePartie(@RequestBody Partie updatedPartie, @PathVariable("id") String id, @RequestHeader(value = "x-token") String token)throws BadRequest {
+    public ResponseEntity<?> updatePartie(@RequestBody Partie updatedPartie, @ApiParam("Id de la partie") @PathVariable("id") String id, @ApiParam("Token de la partie") @RequestHeader(value = "x-token") String token)throws BadRequest {
 		
 		if(token.isEmpty()) {
 			throw new BadRequest("Token empty");
@@ -161,8 +170,9 @@ public class PartieRepresentation {
     	throw new NotFound("Partie inexistante");
     }
 	
+	@ApiOperation(value = "Supprimer une partie")
 	@DeleteMapping(value="/{id}")
-    public ResponseEntity<?> deletePartie(@PathVariable("id") String id, @RequestHeader(value = "x-token") String token) {
+    public ResponseEntity<?> deletePartie(@ApiParam("Id de la partie") @PathVariable("id") String id, @ApiParam("Token de la partie") @RequestHeader(value = "x-token") String token) {
     	
     	Optional<Partie> partie = pr.findByIdAndToken(id, token);
     	
