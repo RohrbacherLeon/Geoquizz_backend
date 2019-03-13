@@ -15,7 +15,7 @@ public class Photo {
 
 	@Id
 	private String id;
-	private String desc;
+	private String description;
 	private float longitude;
 	private float latitude;
 	private String url;
@@ -31,8 +31,8 @@ public class Photo {
 	
 	Photo(){}
 	
-	public Photo(String desc, float longitude, float latitude, String url) {
-		this.desc = desc;
+	public Photo(String description, float longitude, float latitude, String url) {
+		this.description = description;
 		this.longitude = longitude;
 		this.latitude = latitude;
 		this.url = url;
@@ -46,12 +46,12 @@ public class Photo {
 		this.id = id;
 	}
 
-	public String getDesc() {
-		return desc;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setDesc(String desc) {
-		this.desc = desc;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public float getLongitude() {
@@ -86,4 +86,11 @@ public class Photo {
 		this.serie = serie;
 	}
 	
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
 }
