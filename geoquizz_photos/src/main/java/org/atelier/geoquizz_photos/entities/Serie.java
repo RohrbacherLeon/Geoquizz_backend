@@ -9,6 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @Table(name="series")
 public class Serie {
@@ -20,6 +22,7 @@ public class Serie {
 	private float map_lat;
 	private int dist;
 	
+	@JsonManagedReference
 	@OneToMany(mappedBy="serie", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
 	private Set<Photo> photos;
 	
