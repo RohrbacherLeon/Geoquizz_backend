@@ -19,6 +19,7 @@ public class Photo {
 	private float longitude;
 	private float latitude;
 	private String url;
+	private String token;
 	
 	@JsonBackReference
 	@ManyToOne(fetch=FetchType.LAZY, optional=false)
@@ -76,6 +77,14 @@ public class Photo {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+	
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
 	}
 
 	public Serie getSerie() {

@@ -3,15 +3,16 @@ package org.atelier.geoquizz_photos.boundaries;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.atelier.geoquizz_photos.entities.Photo;
-import org.atelier.geoquizz_photos.entities.Serie;
-import org.atelier.geoquizz_photos.exceptions.BadRequest;
+import org.atelier.geoquizz_photos.exceptions.NotFound;
+import org.atelier.geoquizz_photos.exceptions.Unauthorized;
 import org.atelier.geoquizz_photos.service.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
@@ -19,14 +20,18 @@ import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 @RestController
 @RequestMapping(value="/photos", produces=MediaType.APPLICATION_JSON_VALUE)
@@ -34,12 +39,15 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class PhotoRepresentation {
 	
 	private final PhotoResource pr;
+	private final SerieResource sr;
+	private static final String AWAITING_DATA = "0";
 	
 	@Autowired
 	private FileStorageService fileStorageService;
 	
-	public PhotoRepresentation(PhotoResource pr) {
+	public PhotoRepresentation(PhotoResource pr, SerieResource sr) {
 		this.pr = pr;
+		this.sr = sr;
 	}
 	
 	public Resource<Photo> photoToResource(Photo photo, boolean collection){
@@ -60,16 +68,39 @@ public class PhotoRepresentation {
 		return new Resources<>(photoResources, selfLink);
 	}
 	
-	@PostMapping
-	public ResponseEntity<?> postPhoto(@RequestBody Photo photo, @RequestParam("file") MultipartFile file){
-		return new ResponseEntity<>(fileStorageService.storeFile(file), HttpStatus.OK);
+	private String generateToken() {
+		return Jwts.builder().setIssuedAt(new Date()).signWith(SignatureAlgorithm.HS256, "cmdSecret").compact();
 	}
 	
-	@PutMapping
-	public ResponseEntity<?> endUpload(@RequestBody Photo photo){
+	@PostMapping
+	public ResponseEntity<?> postPhoto(@RequestPart("file") MultipartFile file){
+		String filename = fileStorageService.storeFile(file);
+		Photo photo = new Photo("", 0, 0, ("/images/" + filename));
 		photo.setId(UUID.randomUUID().toString());
+		photo.setToken(generateToken());
+		photo.setSerie(sr.findById(AWAITING_DATA).get());
 		pr.save(photo);
 		return new ResponseEntity<>(photoToResource(photo, false), HttpStatus.OK);
+	}
+	
+	@PutMapping(value="/{id}")
+	public ResponseEntity<?> putPhoto(@RequestBody Photo updated, @RequestHeader(value="x-token") String token, @PathVariable("id") String id){
+		Optional<Photo> query = pr.findById(id);
+		if(query.isPresent()) {
+			Photo photo = query.get();
+			if(photo.getToken().equals(token)) {
+				photo.setDescription(updated.getDescription());
+				photo.setLatitude(updated.getLatitude());
+				photo.setLongitude(updated.getLongitude());
+				photo.setSerie(updated.getSerie());
+				pr.save(photo);
+				return new ResponseEntity<>(photoToResource(photo, false), HttpStatus.OK);
+			} else {
+				throw new Unauthorized("Token fourni invalide.");
+			}
+		} else {
+			throw new NotFound("/photos/" + id);
+		}		
 	}
 	
 }
