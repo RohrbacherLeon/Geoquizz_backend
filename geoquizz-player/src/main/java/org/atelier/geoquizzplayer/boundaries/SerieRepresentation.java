@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.atelier.geoquizzplayer.EntityMirror.PartieMirroir;
+import org.atelier.geoquizzplayer.EntityMirror.PartieMirroirWithToken;
+import org.atelier.geoquizzplayer.EntityMirror.SerieMirroir;
+import org.atelier.geoquizzplayer.entity.Partie;
 import org.atelier.geoquizzplayer.entity.Photo;
 import org.atelier.geoquizzplayer.entity.Serie;
 import org.atelier.geoquizzplayer.exception.BadRequest;
@@ -27,6 +31,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 @RestController
 @RequestMapping(value="/series", produces=MediaType.APPLICATION_JSON_VALUE)
 @ExposesResourceFor(Serie.class)
@@ -38,31 +45,40 @@ public class SerieRepresentation {
 		this.sr = sr;
 	}
 	
-	private Resource<Serie> serieToResource(Serie serie, boolean collection){
+	private SerieMirroir serieToMirror(Serie s) {
+    	SerieMirroir cm = new SerieMirroir(s.getId(), s.getVille(), s.getMap_long(), s.getMap_lat(), s.getDist());
+    	
+    	return cm;
+    }
+	
+	private Resource<SerieMirroir> serieToResource(Serie serie, boolean collection){
 		Link selfLink = linkTo(SerieRepresentation.class).slash(serie.getId()).withSelfRel();
+		SerieMirroir sm = serieToMirror(serie);
 		if(collection) {
 			Link collectionLink = linkTo(SerieRepresentation.class).withRel("collection");
 			Link photosLink = linkTo(SerieRepresentation.class).slash(serie.getId()).slash("photos").withRel("photos");
-			return new Resource<>(serie, selfLink, collectionLink, photosLink);
+			return new Resource<>(sm, selfLink, collectionLink, photosLink);
 		} else {
-			return new Resource<>(serie, selfLink);
+			return new Resource<>(sm, selfLink);
 		}
 	}
 	
-	private Resources<Resource<Serie>> seriesToResource(Iterable<Serie> series){
+	private Resources<Resource<SerieMirroir>> seriesToResource(Iterable<Serie> series){
 		Link selfLink = linkTo(SerieRepresentation.class).withSelfRel();
-		List<Resource<Serie>> serieResources = new ArrayList<Resource<Serie>>();
+		List<Resource<SerieMirroir>> serieResources = new ArrayList<Resource<SerieMirroir>>();
 		series.forEach(serie -> serieResources.add(serieToResource(serie, true)));
 		return new Resources<>(serieResources, selfLink);
 	}
 	
+	@ApiOperation(value = "Récupèrer toutes les series existantes")
 	@GetMapping
 	public ResponseEntity<?> getAllSeries() {
 		return new ResponseEntity<>(seriesToResource(sr.findAll()), HttpStatus.OK);
 	}
 	
+	@ApiOperation(value = "Récupèrer une série")
 	@GetMapping(value="/{id}")
-	public ResponseEntity<?> getSerie(@PathVariable("id") String id){
+	public ResponseEntity<?> getSerie(@ApiParam("Id de la série") @PathVariable("id") String id){
 		Optional<Serie> serie = sr.findById(id);
 		if(serie.isPresent()) {
 			return new ResponseEntity<>(serieToResource(serie.get(), false), HttpStatus.OK);
@@ -71,8 +87,9 @@ public class SerieRepresentation {
 		}
 	}
 	
+	@ApiOperation(value = "Récupèrer toutes les photos d'une série")
 	@GetMapping(value="/{id}/photos")
-	public ResponseEntity<?> getAllPhotosOfSerie(@PathVariable("id") String id, @RequestParam(value="random")boolean random, @RequestParam(value="limit")int limit){
+	public ResponseEntity<?> getAllPhotosOfSerie(@ApiParam("Id de la série") @PathVariable("id") String id, @ApiParam("Mélanger les images") @RequestParam(value="random")boolean random, @ApiParam("Nombre de photo voulus") @RequestParam(value="limit")int limit){
 		Optional<Serie> serie = sr.findById(id);
 		
 		if(!random) {
@@ -95,6 +112,7 @@ public class SerieRepresentation {
 		}
 	}
 	
+	@ApiOperation(value = "Créer une série")
 	@PostMapping
 	public ResponseEntity<?> postSerie(@RequestBody Serie serie){
 		serie.setId(UUID.randomUUID().toString());

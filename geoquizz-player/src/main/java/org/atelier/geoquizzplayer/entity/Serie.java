@@ -14,7 +14,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name="series")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Serie {
 	
 	@Id

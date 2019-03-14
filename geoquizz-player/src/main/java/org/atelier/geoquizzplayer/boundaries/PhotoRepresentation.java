@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 @RestController
 @RequestMapping(value="/photos")
 @ExposesResourceFor(Photo.class)
@@ -23,8 +26,9 @@ public class PhotoRepresentation {
 		this.pr = pr;
 	}
 	
+	@ApiOperation(value = "Récupèrer une image")
 	@GetMapping(value = "/{name}", produces = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity<byte[]> getImage(@PathVariable("name") String name) throws Exception {
+    public ResponseEntity<byte[]> getImage(@ApiParam("Nom de l'image avec son extension") @PathVariable("name") String name) throws Exception {
 
     	ClassPathResource imgFile = new ClassPathResource("images/" + name);
         byte[] bytes = StreamUtils.copyToByteArray(imgFile.getInputStream());
