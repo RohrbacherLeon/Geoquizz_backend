@@ -24,6 +24,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
+@Api("API pour les opérations CRUD sur les series.")
 @RestController
 @RequestMapping(value="/series", produces=MediaType.APPLICATION_JSON_VALUE)
 @ExposesResourceFor(Serie.class)
@@ -53,13 +58,15 @@ public class SerieRepresentation {
 		return new Resources<>(serieResources, selfLink);
 	}
 	
+	@ApiOperation("Retourne toutes les series")
 	@GetMapping
 	public ResponseEntity<?> getAllSeries() {
 		return new ResponseEntity<>(seriesToResource(sr.findAll()), HttpStatus.OK);
 	}
 	
+	@ApiOperation("Retourne la serie dont l'id est fournie")
 	@GetMapping(value="/{id}")
-	public ResponseEntity<?> getSerie(@PathVariable("id") String id){
+	public ResponseEntity<?> getSerie(@ApiParam("Id de la serie") @PathVariable("id") String id){
 		Optional<Serie> serie = sr.findById(id);
 		if(serie.isPresent()) {
 			return new ResponseEntity<>(serieToResource(serie.get(), false), HttpStatus.OK);
@@ -68,8 +75,9 @@ public class SerieRepresentation {
 		}
 	}
 	
+	@ApiOperation("Retourne toutes les photos de la serie")
 	@GetMapping(value="/{id}/photos")
-	public ResponseEntity<?> getAllPhotosOfSerie(@PathVariable("id") String id){
+	public ResponseEntity<?> getAllPhotosOfSerie(@ApiParam("Id de la serie") @PathVariable("id") String id){
 		Optional<Serie> serie = sr.findById(id);
 		if(serie.isPresent()) {
 			return new ResponseEntity<>(serie.get().getPhotos(), HttpStatus.OK);
@@ -78,6 +86,7 @@ public class SerieRepresentation {
 		}
 	}
 	
+	@ApiOperation("Créér une nouvelle serie à partir de celle fournie en body. Il ne peut y avoir qu'une serie par ville")
 	@PostMapping
 	public ResponseEntity<?> postSerie(@RequestBody Serie serie){
 		serie.setId(UUID.randomUUID().toString());
