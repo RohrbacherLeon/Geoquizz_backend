@@ -16,8 +16,8 @@ public class PartieMirroirWithToken extends PartieMirroir {
     private String token = "";
 
     
-    public PartieMirroirWithToken (String id, int nb, int status, int score, String joueur, Set<Photo> photos, Serie serie, String token ) {
-    	super(id, nb, status, score, joueur, photos, serie);
+    public PartieMirroirWithToken (String id, int nb, int status, int score, String joueur, Serie serie, String token ) {
+    	super(id, nb, status, score, joueur, serie);
     	this.token = token;
     }
 
