@@ -19,14 +19,13 @@ public class PartieMirroir {
 	private Serie serie;
 
 
-	public PartieMirroir(String id, int nb, int status, int score, String joueur, Set<Photo> set, Serie serie) {
+	public PartieMirroir(String id, int nb, int status, int score, String joueur, Serie serie) {
 		this.id = id;
 		this.nb_photos = nb;
 		this.status = status;
 		this.score = score;
 		this.joueur = joueur;
-		this.setPhotos(set);
-		this.setSerie(serie);
+		this.serie = serie;
 	}
     
    

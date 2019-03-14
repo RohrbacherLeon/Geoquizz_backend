@@ -44,10 +44,9 @@ public class Partie {
 		
 	}
 	
-	public Partie(String joueur, Serie serie, Set<Photo> photos) {
+	public Partie(String joueur, Serie serie) {
 		this.joueur = joueur;
 		this.serie = serie;
-		this.photos = photos;
 	}
 
 	public String getId() {

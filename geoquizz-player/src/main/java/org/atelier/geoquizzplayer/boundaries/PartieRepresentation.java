@@ -58,9 +58,9 @@ public class PartieRepresentation {
     	PartieMirroir cm = null;
     	
     	if(!showToken) {
-    		cm = new PartieMirroir(c.getId(), c.getNb_photos(), c.getStatus(), c.getScore(), c.getJoueur(), c.getPhotos(), c.getSerie());
+    		cm = new PartieMirroir(c.getId(), c.getNb_photos(), c.getStatus(), c.getScore(), c.getJoueur(), c.getSerie());
     	}else {
-    		cm = new PartieMirroirWithToken(c.getId(), c.getNb_photos(), c.getStatus(), c.getScore(), c.getJoueur(), c.getPhotos(), c.getSerie(), c.getToken());
+    		cm = new PartieMirroirWithToken(c.getId(), c.getNb_photos(), c.getStatus(), c.getScore(), c.getJoueur(), c.getSerie(), c.getToken());
         	
     	}
     	return cm;
@@ -94,11 +94,11 @@ public class PartieRepresentation {
 		String jwtToken = generateToken();
         partie.setToken(jwtToken);
         
-        for (Photo photo : partie.getPhotos()) {
+        /*for (Photo photo : partie.getPhotos()) {
         	if(!photo.getSerie().getId().equals(partie.getSerie().getId())) {
         		throw new BadRequest("La photo n'est pas dans la bonne série");
         	}
-        }
+        }*/
         
         Partie newPartie = pr.save(partie);
         HttpHeaders responseHeaders = new HttpHeaders();

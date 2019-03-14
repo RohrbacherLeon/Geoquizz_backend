@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.atelier.geoquizzplayer.EntityMirror.PartieMirroir;
+import org.atelier.geoquizzplayer.EntityMirror.PartieMirroirWithToken;
+import org.atelier.geoquizzplayer.EntityMirror.SerieMirroir;
+import org.atelier.geoquizzplayer.entity.Partie;
 import org.atelier.geoquizzplayer.entity.Photo;
 import org.atelier.geoquizzplayer.entity.Serie;
 import org.atelier.geoquizzplayer.exception.BadRequest;
@@ -41,20 +45,27 @@ public class SerieRepresentation {
 		this.sr = sr;
 	}
 	
-	private Resource<Serie> serieToResource(Serie serie, boolean collection){
+	private SerieMirroir serieToMirror(Serie s) {
+    	SerieMirroir cm = new SerieMirroir(s.getId(), s.getVille(), s.getMap_long(), s.getMap_lat(), s.getDist());
+    	
+    	return cm;
+    }
+	
+	private Resource<SerieMirroir> serieToResource(Serie serie, boolean collection){
 		Link selfLink = linkTo(SerieRepresentation.class).slash(serie.getId()).withSelfRel();
+		SerieMirroir sm = serieToMirror(serie);
 		if(collection) {
 			Link collectionLink = linkTo(SerieRepresentation.class).withRel("collection");
 			Link photosLink = linkTo(SerieRepresentation.class).slash(serie.getId()).slash("photos").withRel("photos");
-			return new Resource<>(serie, selfLink, collectionLink, photosLink);
+			return new Resource<>(sm, selfLink, collectionLink, photosLink);
 		} else {
-			return new Resource<>(serie, selfLink);
+			return new Resource<>(sm, selfLink);
 		}
 	}
 	
-	private Resources<Resource<Serie>> seriesToResource(Iterable<Serie> series){
+	private Resources<Resource<SerieMirroir>> seriesToResource(Iterable<Serie> series){
 		Link selfLink = linkTo(SerieRepresentation.class).withSelfRel();
-		List<Resource<Serie>> serieResources = new ArrayList<Resource<Serie>>();
+		List<Resource<SerieMirroir>> serieResources = new ArrayList<Resource<SerieMirroir>>();
 		series.forEach(serie -> serieResources.add(serieToResource(serie, true)));
 		return new Resources<>(serieResources, selfLink);
 	}
@@ -101,7 +112,7 @@ public class SerieRepresentation {
 		}
 	}
 	
-	@ApiOperation(value = "Créer série")
+	@ApiOperation(value = "Créer une série")
 	@PostMapping
 	public ResponseEntity<?> postSerie(@RequestBody Serie serie){
 		serie.setId(UUID.randomUUID().toString());
