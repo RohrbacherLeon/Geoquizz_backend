@@ -40,7 +40,7 @@ public class SerieRepresentation {
 		this.sr = sr;
 	}
 	
-	private Resource<Serie> serieToResource(Serie serie, boolean collection){
+	public static Resource<Serie> serieToResource(Serie serie, boolean collection){
 		Link selfLink = linkTo(SerieRepresentation.class).slash(serie.getId()).withSelfRel();
 		if(collection) {
 			Link collectionLink = linkTo(SerieRepresentation.class).withRel("collection");
@@ -51,7 +51,7 @@ public class SerieRepresentation {
 		}
 	}
 	
-	private Resources<Resource<Serie>> seriesToResource(Iterable<Serie> series){
+	public static Resources<Resource<Serie>> seriesToResource(Iterable<Serie> series){
 		Link selfLink = linkTo(SerieRepresentation.class).withSelfRel();
 		List<Resource<Serie>> serieResources = new ArrayList<Resource<Serie>>();
 		series.forEach(serie -> serieResources.add(serieToResource(serie, true)));
@@ -69,7 +69,7 @@ public class SerieRepresentation {
 	public ResponseEntity<?> getSerie(@ApiParam("Id de la serie") @PathVariable("id") String id){
 		Optional<Serie> serie = sr.findById(id);
 		if(serie.isPresent()) {
-			return new ResponseEntity<>(serieToResource(serie.get(), false), HttpStatus.OK);
+			return new ResponseEntity<>(serieToResource(serie.get(), true), HttpStatus.OK);
 		} else {
 			throw new NotFound("/series/" + id);
 		}
@@ -80,7 +80,7 @@ public class SerieRepresentation {
 	public ResponseEntity<?> getAllPhotosOfSerie(@ApiParam("Id de la serie") @PathVariable("id") String id){
 		Optional<Serie> serie = sr.findById(id);
 		if(serie.isPresent()) {
-			return new ResponseEntity<>(serie.get().getPhotos(), HttpStatus.OK);
+			return new ResponseEntity<>(PhotoRepresentation.photosToResources(serie.get().getPhotos()), HttpStatus.OK);
 		} else {
 			throw new NotFound("/series/" + id + "/photos");
 		}

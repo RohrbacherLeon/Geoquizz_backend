@@ -54,18 +54,18 @@ public class PhotoRepresentation {
 		this.sr = sr;
 	}
 	
-	public Resource<Photo> photoToResource(Photo photo, boolean collection){
+	public static Resource<Photo> photoToResource(Photo photo, boolean collection){
 		Link selfLink = linkTo(PhotoRepresentation.class).slash(photo.getId()).withSelfRel();
 		if(collection) {
-			//Link collectionLink = linkTo(PhotoRepresentation.class).withRel("collection");
+			Link collectionLink = linkTo(PhotoRepresentation.class).withRel("collection");
 			Link serieLink = linkTo(SerieRepresentation.class).slash(photo.getSerie().getId()).withRel("serie");
-			return new Resource<>(photo, selfLink, serieLink);
+			return new Resource<>(photo, selfLink, collectionLink, serieLink);
 		} else {
 			return new Resource<>(photo, selfLink);
 		}
 	}
 	
-	public Resources<Resource<Photo>> photosToResources(Iterable<Photo> photos){
+	public static Resources<Resource<Photo>> photosToResources(Iterable<Photo> photos){
 		Link selfLink = linkTo(PhotoRepresentation.class).withSelfRel();
 		List<Resource<Photo>> photoResources = new ArrayList<Resource<Photo>>();
 		photos.forEach(photo -> photoResources.add(photoToResource(photo, true)));

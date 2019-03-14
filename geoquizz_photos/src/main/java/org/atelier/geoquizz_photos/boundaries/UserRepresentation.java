@@ -46,7 +46,7 @@ public class UserRepresentation {
 		this.ur = ur;
 	}
 	
-	private Resource<User> userToResource(User user, boolean collection) {
+	public static Resource<User> userToResource(User user, boolean collection) {
 		Link selfLink = linkTo(UserRepresentation.class).slash(user.getId()).withSelfRel();
 		if(collection) {
 			Link collectionLink = linkTo(UserRepresentation.class).withRel("collection");
@@ -56,7 +56,7 @@ public class UserRepresentation {
 		}
 	}
 	
-	private Resources<Resource<User>> usersToResource(Iterable<User> users){
+	public static Resources<Resource<User>> usersToResource(Iterable<User> users){
 		Link selfLink = linkTo(UserRepresentation.class).withSelfRel();
 		List<Resource<User>> userResources = new ArrayList<Resource<User>>();
 		users.forEach(user -> userResources.add(userToResource(user, true)));
@@ -74,7 +74,7 @@ public class UserRepresentation {
 		if(query.isPresent()) {
 			User user = query.get();
 			if(user.getToken().equals(token)) {
-				return new ResponseEntity<>(user.getPhotos(), HttpStatus.OK);
+				return new ResponseEntity<>(PhotoRepresentation.photosToResources(user.getPhotos()), HttpStatus.OK);
 			} else {
 				throw new Unauthorized("Token fourni invalide.");
 			}
