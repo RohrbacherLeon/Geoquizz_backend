@@ -63,7 +63,7 @@ INSERT INTO `series`(`id`, `ville`, `map_long`, `map_lat`, `dist`) VALUES
 INSERT INTO `photos` (`id`,`description`,`longitude`, `latitude`, `url`, `token`, `serie_id`, `user_id`) values
 ('1', "gare", 48.6896, 6.173900000000003, "gare.jpg", 'token', '1', '1'),
 ('2', "basilique_saint_epvre", 48.696003, 6.179917, "basilique_saint_epvre.jpg", 'token', '1', '1'),
-('3', "hopital_central", 48.6845866, 6.1916289, "hopital_central.png", 'token', '1', '1'),
+('3', "hopital_central", 48.6845866, 6.1916289, "hopital_central.jpg", 'token', '1', '1'),
 ('4', "kinepolis", 8.6918103, 6.1958243, "kinepolis.jpg", 'token', '1', '1'),
 ('5', "place_carnot", 48.69351770490701, 6.1774060661316526 , "place_carnot.jpg", 'token', '1', '1'),
 ('6', "place_des_vosges", 48.6849, 6.18730000000005, "place_des_vosges.jpg", 'token', '1', '1'),
