@@ -18,6 +18,12 @@ public class Serie {
 	
 	@Id
 	private String id;
+	@Override
+	public String toString() {
+		return "Serie [id=" + id + ", ville=" + ville + ", dist="
+				+ dist + ", photos=" + photos;
+	}
+
 	private String ville;
 	private float map_long;
 	private float map_lat;
