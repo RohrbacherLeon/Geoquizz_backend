@@ -23,5 +23,12 @@ services:
     depends_on: 
       - geoquizz-mysql
     ports: 
+      - "8084:8080"
+  geoquizz-photos:
+    build:
+      context: ./geoquizz_photos
+      dockerfile: photos.dockerfile
+    depends_on: 
+      - geoquizz-mysql
+    ports: 
       - "8080:8080"
-    
