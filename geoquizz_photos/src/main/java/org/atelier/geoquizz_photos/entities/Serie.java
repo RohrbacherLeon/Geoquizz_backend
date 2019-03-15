@@ -28,11 +28,12 @@ public class Serie {
 	
 	Serie(){}
 	
-	public Serie(String ville, float map_long, float map_lat, int dist) {
+	public Serie(String ville, float map_long, float map_lat, int dist, Set<Photo> photos) {
 		this.ville = ville;
 		this.map_long = map_long;
 		this.map_lat = map_lat;
 		this.dist = dist;
+		this.photos = photos;
 	}
 
 	public String getId() {

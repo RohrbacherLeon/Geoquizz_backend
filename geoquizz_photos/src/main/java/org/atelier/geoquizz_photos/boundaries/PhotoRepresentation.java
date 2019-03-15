@@ -32,7 +32,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
+@Api("API pour les opérations CRUD sur les photos.")
 @RestController
 @RequestMapping(value="/photos", produces=MediaType.APPLICATION_JSON_VALUE)
 @ExposesResourceFor(Photo.class)
@@ -50,18 +54,18 @@ public class PhotoRepresentation {
 		this.sr = sr;
 	}
 	
-	public Resource<Photo> photoToResource(Photo photo, boolean collection){
+	public static Resource<Photo> photoToResource(Photo photo, boolean collection){
 		Link selfLink = linkTo(PhotoRepresentation.class).slash(photo.getId()).withSelfRel();
 		if(collection) {
-			//Link collectionLink = linkTo(PhotoRepresentation.class).withRel("collection");
+			Link collectionLink = linkTo(PhotoRepresentation.class).withRel("collection");
 			Link serieLink = linkTo(SerieRepresentation.class).slash(photo.getSerie().getId()).withRel("serie");
-			return new Resource<>(photo, selfLink, serieLink);
+			return new Resource<>(photo, selfLink, collectionLink, serieLink);
 		} else {
 			return new Resource<>(photo, selfLink);
 		}
 	}
 	
-	public Resources<Resource<Photo>> photosToResources(Iterable<Photo> photos){
+	public static Resources<Resource<Photo>> photosToResources(Iterable<Photo> photos){
 		Link selfLink = linkTo(PhotoRepresentation.class).withSelfRel();
 		List<Resource<Photo>> photoResources = new ArrayList<Resource<Photo>>();
 		photos.forEach(photo -> photoResources.add(photoToResource(photo, true)));
@@ -72,8 +76,9 @@ public class PhotoRepresentation {
 		return Jwts.builder().setIssuedAt(new Date()).signWith(SignatureAlgorithm.HS256, "cmdSecret").compact();
 	}
 	
+	@ApiOperation("Upload de l'image d'une photo sur le serveur")
 	@PostMapping
-	public ResponseEntity<?> postPhoto(@RequestPart("file") MultipartFile file){
+	public ResponseEntity<?> postPhoto(@ApiParam("Image à uploader") @RequestPart("file") MultipartFile file){
 		String filename = fileStorageService.storeFile(file);
 		Photo photo = new Photo("", 0, 0, ("/images/" + filename));
 		photo.setId(UUID.randomUUID().toString());
@@ -83,8 +88,9 @@ public class PhotoRepresentation {
 		return new ResponseEntity<>(photoToResource(photo, false), HttpStatus.OK);
 	}
 	
+	@ApiOperation("Modification des données d'une photo")
 	@PutMapping(value="/{id}")
-	public ResponseEntity<?> putPhoto(@RequestBody Photo updated, @RequestHeader(value="x-token") String token, @PathVariable("id") String id){
+	public ResponseEntity<?> putPhoto(@RequestBody Photo updated, @ApiParam("Token de la photo") @RequestHeader(value="x-token") String token, @ApiParam("Id de la photo") @PathVariable("id") String id){
 		Optional<Photo> query = pr.findById(id);
 		if(query.isPresent()) {
 			Photo photo = query.get();
@@ -93,6 +99,7 @@ public class PhotoRepresentation {
 				photo.setLatitude(updated.getLatitude());
 				photo.setLongitude(updated.getLongitude());
 				photo.setSerie(updated.getSerie());
+				photo.setUser(updated.getUser());
 				pr.save(photo);
 				return new ResponseEntity<>(photoToResource(photo, false), HttpStatus.OK);
 			} else {
