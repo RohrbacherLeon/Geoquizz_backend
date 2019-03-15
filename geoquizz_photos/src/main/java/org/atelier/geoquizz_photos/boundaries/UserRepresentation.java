@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.atelier.geoquizz_photos.entities.User;
 import org.atelier.geoquizz_photos.exceptions.BadRequest;
@@ -29,7 +30,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
+@Api("API pour les opérations CRUD sur les users.")
 @RestController
 @RequestMapping(value="/users", produces=MediaType.APPLICATION_JSON_VALUE)
 @ExposesResourceFor(User.class)
@@ -41,7 +46,7 @@ public class UserRepresentation {
 		this.ur = ur;
 	}
 	
-	private Resource<User> userToResource(User user, boolean collection) {
+	public static Resource<User> userToResource(User user, boolean collection) {
 		Link selfLink = linkTo(UserRepresentation.class).slash(user.getId()).withSelfRel();
 		if(collection) {
 			Link collectionLink = linkTo(UserRepresentation.class).withRel("collection");
@@ -51,7 +56,7 @@ public class UserRepresentation {
 		}
 	}
 	
-	private Resources<Resource<User>> usersToResource(Iterable<User> users){
+	public static Resources<Resource<User>> usersToResource(Iterable<User> users){
 		Link selfLink = linkTo(UserRepresentation.class).withSelfRel();
 		List<Resource<User>> userResources = new ArrayList<Resource<User>>();
 		users.forEach(user -> userResources.add(userToResource(user, true)));
@@ -62,13 +67,14 @@ public class UserRepresentation {
 		return Jwts.builder().setIssuedAt(new Date()).signWith(SignatureAlgorithm.HS256, "cmdSecret").compact();
 	}
 	
+	@ApiOperation("Retourne toutes les photos uploadées par le user dont l'id est fournie et qui ne sont pas encore assignées à une serie")
 	@GetMapping("/{id}/photos")
-	public ResponseEntity<?> getPhotosOfUser(@RequestHeader(value="x-token") String token, @PathVariable("id") String id){
+	public ResponseEntity<?> getPhotosOfUser(@ApiParam("Token d'authentification du user") @RequestHeader(value="x-token") String token, @ApiParam("Id du user") @PathVariable("id") String id){
 		Optional<User> query = ur.findById(id);
 		if(query.isPresent()) {
 			User user = query.get();
 			if(user.getToken().equals(token)) {
-				return new ResponseEntity<>(user.getPhotos(), HttpStatus.OK);
+				return new ResponseEntity<>(PhotoRepresentation.photosToResources(user.getPhotos()), HttpStatus.OK);
 			} else {
 				throw new Unauthorized("Token fourni invalide.");
 			}
@@ -77,13 +83,15 @@ public class UserRepresentation {
 		}
 	}
 	
+	@ApiOperation("Inscrit un user si les conditions sont remplies : login unique et mot de passe de 8 caractères minimum")
 	@PostMapping
 	public ResponseEntity<?> postUser(@RequestBody User user){
-		if(ur.findById(user.getId()).isPresent()) {
+		if(ur.findByLogin(user.getLogin()).isPresent()) {
 			throw new BadRequest("Le login choisi est déjà utilisé.");
 		} else if(user.getPassword().length() < 8) {
 			throw new BadRequest("Le mot de passe doit être d'une longueur de 8 caractères minimum.");
 		} else {
+			user.setId(UUID.randomUUID().toString());
 			user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
 			user.setToken(generateToken());
 			ur.save(user);
@@ -91,8 +99,9 @@ public class UserRepresentation {
 		}
 	}
 	
+	@ApiOperation("Retourne le user avec son token si son login et mot de passe fournis sont correctes")
 	@PostMapping("/{id}")
-	public ResponseEntity<?> tryLogin(@RequestBody User user, @PathVariable("id") String id){
+	public ResponseEntity<?> tryLogin(@RequestBody User user, @ApiParam("Id du user") @PathVariable("id") String id){
 		Optional<User> query = ur.findById(id);
 		if(query.isPresent()) {
 			User stored = query.get();
@@ -106,8 +115,9 @@ public class UserRepresentation {
 		}
 	}
 	
+	/*@ApiOperation("Upload une photo dans l'espace personnel du user")
 	@PostMapping("/{id}/photos")
-	public ResponseEntity<?> postPhotoForUser(@RequestBody User user, @PathVariable("id") String id, @RequestHeader(value="x-token") String token){
+	public ResponseEntity<?> postPhotoForUser(@RequestBody User user, @ApiParam("Id du user") @PathVariable("id") String id, @ApiParam("Token du user") @RequestHeader(value="x-token") String token){
 		Optional<User> query = ur.findById(id);
 		if(query.isPresent()) {
 			User stored = query.get();
@@ -123,6 +133,6 @@ public class UserRepresentation {
 		} else {
 			throw new NotFound("/users/" + id);
 		}
-	}
+	}*/
 
 }
