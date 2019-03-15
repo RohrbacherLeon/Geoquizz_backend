@@ -87,31 +87,6 @@ public class SerieRepresentation {
 		}
 	}
 	
-	@ApiOperation(value = "Récupèrer toutes les photos d'une série")
-	@GetMapping(value="/{id}/photos")
-	public ResponseEntity<?> getAllPhotosOfSerie(@ApiParam("Id de la série") @PathVariable("id") String id, @ApiParam("Mélanger les images") @RequestParam(value="random")boolean random, @ApiParam("Nombre de photo voulus") @RequestParam(value="limit")int limit){
-		Optional<Serie> serie = sr.findById(id);
-		
-		if(!random) {
-			throw new BadRequest("Paramètre random inexistant");
-		}
-		
-		if(limit <= 0) {
-			throw new BadRequest("Paramètre limit inexistant ou plus petit ou égale à 0");
-		}
-		
-		if(serie.isPresent()) {
-			List<Photo> photos = new ArrayList<Photo>(serie.get().getPhotos());
-				
-			Collections.shuffle(photos);
-			photos = photos.subList(0, limit);
-			
-			return new ResponseEntity<>(photos, HttpStatus.OK);
-		} else {
-			throw new NotFound("serie inexistante");
-		}
-	}
-	
 	@ApiOperation(value = "Créer une série")
 	@PostMapping
 	public ResponseEntity<?> postSerie(@RequestBody Serie serie){

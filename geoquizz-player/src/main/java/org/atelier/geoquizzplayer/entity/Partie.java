@@ -12,6 +12,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.springframework.data.annotation.Persistent;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 
@@ -35,6 +37,7 @@ public class Partie {
 	
 
 	@ManyToMany(cascade = CascadeType.ALL, fetch=FetchType.LAZY)
+	@Persistent
     @JoinTable(name = "partie_photo", 
       joinColumns = @JoinColumn(name = "partie_id", referencedColumnName = "id"), 
       inverseJoinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "id"))
