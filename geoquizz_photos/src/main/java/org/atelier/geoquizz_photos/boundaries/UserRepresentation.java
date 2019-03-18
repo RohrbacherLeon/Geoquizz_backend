@@ -51,7 +51,6 @@ public class UserRepresentation {
 	private UserMirror userToMirror(User user, boolean token) {
 		UserMirror cm = null;
 		if(!token) {
-			
 			cm = new UserMirror(user.getId(), user.getLogin());
 		}else {
 			cm = new UserMirrorWithToken(user.getId(), user.getLogin(), user.getToken());
@@ -69,8 +68,6 @@ public class UserRepresentation {
 			return new Resource<>(um, selfLink);
 		}
 	}
-	
-	
 	
 	private String generateToken() {
 		return Jwts.builder().setIssuedAt(new Date()).signWith(SignatureAlgorithm.HS256, "cmdSecret").compact();
