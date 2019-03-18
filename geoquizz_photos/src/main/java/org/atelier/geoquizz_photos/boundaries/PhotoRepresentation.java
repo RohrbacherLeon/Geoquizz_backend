@@ -9,6 +9,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.atelier.geoquizz_photos.entities.Photo;
+import org.atelier.geoquizz_photos.entities.Serie;
+import org.atelier.geoquizz_photos.entityMirror.PhotoMirror;
+import org.atelier.geoquizz_photos.entityMirror.SerieMirror;
 import org.atelier.geoquizz_photos.exceptions.NotFound;
 import org.atelier.geoquizz_photos.exceptions.Unauthorized;
 import org.atelier.geoquizz_photos.service.FileStorageService;
@@ -55,20 +58,25 @@ public class PhotoRepresentation {
 		this.sr = sr;
 	}
 	
-	public static Resource<Photo> photoToResource(Photo photo, boolean collection){
+	private static PhotoMirror photoToMirror(Photo photo) {
+		return new PhotoMirror(photo.getId(), photo.getDescription(), photo.getLongitude(), photo.getLatitude(), photo.getUrl());
+	}
+	
+	public static Resource<PhotoMirror> photoToResource(Photo photo, boolean collection){
 		Link selfLink = linkTo(PhotoRepresentation.class).slash(photo.getId()).withSelfRel();
+		PhotoMirror pm = photoToMirror(photo);
 		if(collection) {
 			Link collectionLink = linkTo(PhotoRepresentation.class).withRel("collection");
 			Link serieLink = linkTo(SerieRepresentation.class).slash(photo.getSerie().getId()).withRel("serie");
-			return new Resource<>(photo, selfLink, collectionLink, serieLink);
+			return new Resource<>(pm, selfLink, collectionLink, serieLink);
 		} else {
-			return new Resource<>(photo, selfLink);
+			return new Resource<>(pm, selfLink);
 		}
 	}
 	
-	public static Resources<Resource<Photo>> photosToResources(Iterable<Photo> photos){
+	public static Resources<Resource<PhotoMirror>> photosToResources(Iterable<Photo> photos){
 		Link selfLink = linkTo(PhotoRepresentation.class).withSelfRel();
-		List<Resource<Photo>> photoResources = new ArrayList<Resource<Photo>>();
+		List<Resource<PhotoMirror>> photoResources = new ArrayList<Resource<PhotoMirror>>();
 		photos.forEach(photo -> photoResources.add(photoToResource(photo, true)));
 		return new Resources<>(photoResources, selfLink);
 	}
