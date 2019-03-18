@@ -46,7 +46,7 @@ public class SerieRepresentation {
 	}
 	
 	private SerieMirroir serieToMirror(Serie s) {
-    	SerieMirroir cm = new SerieMirroir(s.getId(), s.getVille(), s.getMap_long(), s.getMap_lat(), s.getDist());
+    	SerieMirroir cm = new SerieMirroir(s.getId(), s.getVille(), s.getMap_long(), s.getMap_lat());
     	
     	return cm;
     }

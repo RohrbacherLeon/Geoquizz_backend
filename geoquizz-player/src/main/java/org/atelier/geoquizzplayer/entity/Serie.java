@@ -20,14 +20,12 @@ public class Serie {
 	private String id;
 	@Override
 	public String toString() {
-		return "Serie [id=" + id + ", ville=" + ville + ", dist="
-				+ dist + ", photos=" + photos;
+		return "Serie [id=" + id + ", ville=" + ville + ", photos=" + photos;
 	}
 
 	private String ville;
 	private float map_long;
 	private float map_lat;
-	private int dist;
 	
 	@JsonManagedReference
 	@OneToMany(mappedBy="serie", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
@@ -47,11 +45,10 @@ public class Serie {
 
 	Serie(){}
 	
-	public Serie(String ville, float map_long, float map_lat, int dist) {
+	public Serie(String ville, float map_long, float map_lat) {
 		this.ville = ville;
 		this.map_long = map_long;
 		this.map_lat = map_lat;
-		this.dist = dist;
 	}
 
 	public String getId() {
@@ -85,15 +82,7 @@ public class Serie {
 	public void setMap_lat(float map_lat) {
 		this.map_lat = map_lat;
 	}
-
-	public int getDist() {
-		return dist;
-	}
-
-	public void setDist(int dist) {
-		this.dist = dist;
-	}
-
+	
 	public Set<Photo> getPhotos() {
 		return photos;
 	}

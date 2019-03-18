@@ -9,14 +9,12 @@ public class SerieMirroir {
 	private String ville;
 	private float map_long;
 	private float map_lat;
-	private int dist;
 	
-	public SerieMirroir(String id, String ville, float lng, float lat, int dist) {
+	public SerieMirroir(String id, String ville, float lng, float lat) {
 		this.id = id;
 		this.ville = ville;
 		this.map_long = lng;
 		this.map_lat = lat;
-		this.dist = dist;
 	}
 
 	public String getId() {
@@ -49,14 +47,6 @@ public class SerieMirroir {
 
 	public void setMap_lat(float map_lat) {
 		this.map_lat = map_lat;
-	}
-
-	public int getDist() {
-		return dist;
-	}
-
-	public void setDist(int dist) {
-		this.dist = dist;
 	}
 
     
