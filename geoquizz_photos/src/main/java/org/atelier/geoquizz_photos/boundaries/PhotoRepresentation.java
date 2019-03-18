@@ -20,6 +20,7 @@ import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -44,7 +45,7 @@ public class PhotoRepresentation {
 	
 	private final PhotoResource pr;
 	private final SerieResource sr;
-	private static final String AWAITING_DATA = "0";
+	public static final String AWAITING_DATA = "0";
 	
 	@Autowired
 	private FileStorageService fileStorageService;
@@ -75,6 +76,19 @@ public class PhotoRepresentation {
 	private String generateToken() {
 		return Jwts.builder().setIssuedAt(new Date()).signWith(SignatureAlgorithm.HS256, "cmdSecret").compact();
 	}
+	
+	@ApiOperation("Recupère les informations d'une photo dont l'id est fournie en paramètre.")
+	@GetMapping("/{uri}")
+	public ResponseEntity<?> getPhoto(@ApiParam("Id de la photo") @PathVariable("uri") String uri){
+		Optional<Photo> query = pr.findByUrl(uri);
+		if(query.isPresent()) {
+			Photo photo = query.get();
+			return new ResponseEntity<>(photoToResource(photo, false), HttpStatus.OK);
+		} else {
+			throw new NotFound("/photos/" + uri);
+		}
+	}
+	
 	
 	@ApiOperation("Upload de l'image d'une photo sur le serveur")
 	@PostMapping
