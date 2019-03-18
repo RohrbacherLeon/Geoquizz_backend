@@ -3,10 +3,12 @@ package org.atelier.geoquizz_photos.boundaries;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.atelier.geoquizz_photos.entities.Photo;
 import org.atelier.geoquizz_photos.entities.Serie;
 import org.atelier.geoquizz_photos.exceptions.BadRequest;
 import org.atelier.geoquizz_photos.exceptions.NotFound;
@@ -100,6 +102,24 @@ public class SerieRepresentation {
 		} else {
 			throw new BadRequest("La ville doit être spécifiée.");
 		}	
+	}
+	
+	@ApiOperation("Ajoute les photos fournies dans le body à la serie courante.")
+	@PostMapping("/{id}/photos")
+	public ResponseEntity<?> postPhotosOfSerie(@RequestBody Photo[] photos, @ApiParam("Id de la serie") @PathVariable("id") String id){
+		Optional<Serie> query = sr.findById(id);
+		if(query.isPresent()) {
+			Serie serie = query.get();
+			HashSet<Photo> set = new HashSet<Photo>();
+			for(Photo photo : photos) {
+				set.add(photo);
+			}
+			serie.setPhotos(set);
+			sr.save(serie);
+			return new ResponseEntity<>(serieToResource(serie, true), HttpStatus.OK);
+		} else {
+			throw new NotFound("/series/" + id);
+		}
 	}
 	
 }
