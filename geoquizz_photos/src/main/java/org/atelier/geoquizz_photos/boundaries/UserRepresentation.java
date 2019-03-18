@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.atelier.geoquizz_photos.entities.User;
+import org.atelier.geoquizz_photos.entityMirror.UserMirror;
+import org.atelier.geoquizz_photos.entityMirror.UserMirrorWithToken;
 import org.atelier.geoquizz_photos.exceptions.BadRequest;
 import org.atelier.geoquizz_photos.exceptions.NotFound;
 import org.atelier.geoquizz_photos.exceptions.Unauthorized;
@@ -46,22 +48,29 @@ public class UserRepresentation {
 		this.ur = ur;
 	}
 	
-	public static Resource<User> userToResource(User user, boolean collection) {
+	private UserMirror userToMirror(User user, boolean token) {
+		UserMirror cm = null;
+		if(!token) {
+			
+			cm = new UserMirror(user.getId(), user.getLogin());
+		}else {
+			cm = new UserMirrorWithToken(user.getId(), user.getLogin(), user.getToken());
+		}
+    	return cm;
+    }
+	
+	public Resource<UserMirror> userToResource(User user, boolean collection, boolean showToken) {
 		Link selfLink = linkTo(UserRepresentation.class).slash(user.getId()).withSelfRel();
+		UserMirror um = userToMirror(user, showToken);
 		if(collection) {
 			Link collectionLink = linkTo(UserRepresentation.class).withRel("collection");
-			return new Resource<>(user, selfLink, collectionLink);
+			return new Resource<>(um, selfLink, collectionLink);
 		} else {
-			return new Resource<>(user, selfLink);
+			return new Resource<>(um, selfLink);
 		}
 	}
 	
-	public static Resources<Resource<User>> usersToResource(Iterable<User> users){
-		Link selfLink = linkTo(UserRepresentation.class).withSelfRel();
-		List<Resource<User>> userResources = new ArrayList<Resource<User>>();
-		users.forEach(user -> userResources.add(userToResource(user, true)));
-		return new Resources<>(userResources, selfLink);
-	}
+	
 	
 	private String generateToken() {
 		return Jwts.builder().setIssuedAt(new Date()).signWith(SignatureAlgorithm.HS256, "cmdSecret").compact();
@@ -93,25 +102,28 @@ public class UserRepresentation {
 		} else {
 			user.setId(UUID.randomUUID().toString());
 			user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
-			user.setToken(generateToken());
+
 			ur.save(user);
-			return new ResponseEntity<>(userToResource(user, false), HttpStatus.OK);
+			return new ResponseEntity<>(userToResource(user, false, false), HttpStatus.OK);
 		}
 	}
 	
 	@ApiOperation("Retourne le user avec son token si son login et mot de passe fournis sont correctes")
-	@PostMapping("/{id}")
-	public ResponseEntity<?> tryLogin(@RequestBody User user, @ApiParam("Id du user") @PathVariable("id") String id){
-		Optional<User> query = ur.findById(id);
+	@PostMapping("/signin")
+	public ResponseEntity<?> tryLogin(@RequestBody User user){
+		Optional<User> query = ur.findByLogin(user.getLogin());
+		System.out.println(query);
 		if(query.isPresent()) {
 			User stored = query.get();
+			stored.setToken(generateToken());
+			ur.save(stored);
 			if(BCrypt.checkpw(user.getPassword(), stored.getPassword())) {
-				return new ResponseEntity<>(userToResource(stored, false), HttpStatus.OK);
+				return new ResponseEntity<>(userToResource(stored, false, true), HttpStatus.OK);
 			} else {
 				throw new BadRequest("Les mots de passe ne correspondent pas.");
 			}
 		} else {
-			throw new NotFound("/users/" + id + "; Aucun compte associé à ce login n'a pu être trouvé.");
+			throw new NotFound("Aucun compte associé à ce login n'a pu être trouvé.");
 		}
 	}
 	
