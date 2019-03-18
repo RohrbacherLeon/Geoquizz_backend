@@ -3,6 +3,7 @@ package org.atelier.geoquizz_photos.boundaries;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +14,9 @@ import org.atelier.geoquizz_photos.entities.Serie;
 import org.atelier.geoquizz_photos.entityMirror.SerieMirror;
 import org.atelier.geoquizz_photos.exceptions.BadRequest;
 import org.atelier.geoquizz_photos.exceptions.NotFound;
+import org.atelier.geoquizz_photos.service.FileStorageService;
+import org.atelier.geoquizz_photos.service.FilesContainer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
@@ -23,10 +27,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -38,9 +47,14 @@ import io.swagger.annotations.ApiParam;
 public class SerieRepresentation {
 
 	private final SerieResource sr;
+	private final PhotoResource pr;
 	
-	public SerieRepresentation(SerieResource sr) {
+	@Autowired
+	private FileStorageService fileStorageService;
+	
+	public SerieRepresentation(SerieResource sr, PhotoResource pr) {
 		this.sr = sr;
+		this.pr = pr;
 	}
 	
 	private static SerieMirror serieToMirror(Serie serie) {
@@ -64,6 +78,10 @@ public class SerieRepresentation {
 		List<Resource<SerieMirror>> serieResources = new ArrayList<Resource<SerieMirror>>();
 		series.forEach(serie -> serieResources.add(serieToResource(serie, true)));
 		return new Resources<>(serieResources, selfLink);
+	}
+	
+	private String generateToken() {
+		return Jwts.builder().setIssuedAt(new Date()).signWith(SignatureAlgorithm.HS256, "cmdSecret").compact();
 	}
 	
 	@ApiOperation("Retourne toutes les series")
@@ -116,15 +134,47 @@ public class SerieRepresentation {
 		}	
 	}
 	
-	@ApiOperation("Ajoute les photos fournies dans le body à la serie courante.")
+	/* NE FONCTIONNE PAS
+	@ApiOperation("Upload les images des photos fournies en paramètre sur le serveur.")
 	@PostMapping("/{id}/photos")
-	public ResponseEntity<?> postPhotosOfSerie(@RequestBody Photo[] photos, @ApiParam("Id de la serie") @PathVariable("id") String id){
+	public ResponseEntity<?> postPhotosOfSerie(@ApiParam("Images à uploader") @RequestPart FilesContainer fc, @ApiParam("Id de la série") @PathVariable("id") String id){
+		Optional<Serie> query = sr.findById(id);
+		MultipartFile[] files = fc.getFiles();
+		System.out.println("TESTING ==================> " + files.toString());
+		if(query.isPresent()) {
+			Serie serie = query.get();
+			HashSet<Photo> photos = new HashSet<Photo>(serie.getPhotos());
+			int i = 0;
+			System.out.println("TESTING ==================> " + files.length);
+			for(MultipartFile file : files) {
+				System.out.println("TESTING ==================> " + i + files[i].toString());
+				String filename = fileStorageService.storeFile(file);
+				Photo photo = new Photo("", 0, 0, ("/images/" + filename));
+				photo.setId(UUID.randomUUID().toString());
+				photo.setToken(generateToken());
+				photo.setSerie(sr.findById(PhotoRepresentation.AWAITING_DATA).get());
+				photos.add(pr.save(photo));
+			}
+			serie.setPhotos(photos);
+			sr.save(serie);
+			return new ResponseEntity<>(serieToResource(serie, true), HttpStatus.OK);
+		} else {
+			throw new NotFound("/series/" + id);
+		}
+	}
+	
+	@ApiOperation("Ajoute les informations des photos fournies dans le body à la serie courante.")
+	@PutMapping("/{id}/photos")
+	public ResponseEntity<?> putPhotosOfSerie(@RequestBody Photo[] photos, @ApiParam("Id de la serie") @PathVariable("id") String id){
 		Optional<Serie> query = sr.findById(id);
 		if(query.isPresent()) {
 			Serie serie = query.get();
 			HashSet<Photo> set = new HashSet<Photo>();
 			for(Photo photo : photos) {
-				set.add(photo);
+				Optional<Photo> queryPhoto = pr.findById(photo.getId());
+				if(queryPhoto.isPresent()) {
+					set.add(queryPhoto.get());
+				}
 			}
 			serie.setPhotos(set);
 			sr.save(serie);
@@ -132,6 +182,6 @@ public class SerieRepresentation {
 		} else {
 			throw new NotFound("/series/" + id);
 		}
-	}
+	}*/
 	
 }
