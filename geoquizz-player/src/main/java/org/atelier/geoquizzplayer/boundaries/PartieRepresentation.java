@@ -90,8 +90,13 @@ public class PartieRepresentation {
 	
 	@ApiOperation(value = "Récupère toutes les parties")
 	@GetMapping
-    public ResponseEntity<?> getAllParties() throws BadRequest {
-		Iterable<Partie> allParties = pr.findAll();
+    public ResponseEntity<?> getAllParties(@ApiParam("True si les parties doivent être classé par score") @RequestParam(value="byScore", required=false)boolean score) throws BadRequest {
+		Iterable<Partie> allParties = null;
+		if(score) {
+			allParties = pr.findAllByOrderByScoreAsc();
+		}else {			
+			allParties = pr.findAll();
+		}
         return new ResponseEntity<>(allParties, HttpStatus.OK);
     }
 	
