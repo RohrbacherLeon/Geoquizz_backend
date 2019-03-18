@@ -2,9 +2,7 @@ package org.atelier.geoquizz_photos.boundaries;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,7 +15,6 @@ import org.atelier.geoquizz_photos.exceptions.Unauthorized;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
