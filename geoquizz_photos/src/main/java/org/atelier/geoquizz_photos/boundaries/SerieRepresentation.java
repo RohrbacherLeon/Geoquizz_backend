@@ -3,11 +3,14 @@ package org.atelier.geoquizz_photos.boundaries;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.atelier.geoquizz_photos.entities.Photo;
 import org.atelier.geoquizz_photos.entities.Serie;
+import org.atelier.geoquizz_photos.entityMirror.SerieMirror;
 import org.atelier.geoquizz_photos.exceptions.BadRequest;
 import org.atelier.geoquizz_photos.exceptions.NotFound;
 import org.springframework.hateoas.ExposesResourceFor;
@@ -40,20 +43,25 @@ public class SerieRepresentation {
 		this.sr = sr;
 	}
 	
-	public static Resource<Serie> serieToResource(Serie serie, boolean collection){
+	private static SerieMirror serieToMirror(Serie serie) {
+		return new SerieMirror(serie.getId(), serie.getVille(), serie.getMap_long(), serie.getMap_lat());
+	}
+	
+	public static Resource<SerieMirror> serieToResource(Serie serie, boolean collection){
 		Link selfLink = linkTo(SerieRepresentation.class).slash(serie.getId()).withSelfRel();
+		SerieMirror sm = serieToMirror(serie);
 		if(collection) {
 			Link collectionLink = linkTo(SerieRepresentation.class).withRel("collection");
 			Link photosLink = linkTo(SerieRepresentation.class).slash(serie.getId()).slash("photos").withRel("photos");
-			return new Resource<>(serie, selfLink, collectionLink, photosLink);
+			return new Resource<>(sm, selfLink, collectionLink, photosLink);
 		} else {
-			return new Resource<>(serie, selfLink);
+			return new Resource<>(sm, selfLink);
 		}
 	}
 	
-	public static Resources<Resource<Serie>> seriesToResource(Iterable<Serie> series){
+	public static Resources<Resource<SerieMirror>> seriesToResource(Iterable<Serie> series){
 		Link selfLink = linkTo(SerieRepresentation.class).withSelfRel();
-		List<Resource<Serie>> serieResources = new ArrayList<Resource<Serie>>();
+		List<Resource<SerieMirror>> serieResources = new ArrayList<Resource<SerieMirror>>();
 		series.forEach(serie -> serieResources.add(serieToResource(serie, true)));
 		return new Resources<>(serieResources, selfLink);
 	}
@@ -61,6 +69,12 @@ public class SerieRepresentation {
 	@ApiOperation("Retourne toutes les series")
 	@GetMapping
 	public ResponseEntity<?> getAllSeries() {
+		HashSet<Serie> series = new HashSet();
+		sr.findAll().forEach(serie -> {
+			if(serie.getId() != PhotoRepresentation.AWAITING_DATA) {
+				series.add(serie);
+			}
+		});
 		return new ResponseEntity<>(seriesToResource(sr.findAll()), HttpStatus.OK);
 	}
 	
@@ -100,6 +114,24 @@ public class SerieRepresentation {
 		} else {
 			throw new BadRequest("La ville doit être spécifiée.");
 		}	
+	}
+	
+	@ApiOperation("Ajoute les photos fournies dans le body à la serie courante.")
+	@PostMapping("/{id}/photos")
+	public ResponseEntity<?> postPhotosOfSerie(@RequestBody Photo[] photos, @ApiParam("Id de la serie") @PathVariable("id") String id){
+		Optional<Serie> query = sr.findById(id);
+		if(query.isPresent()) {
+			Serie serie = query.get();
+			HashSet<Photo> set = new HashSet<Photo>();
+			for(Photo photo : photos) {
+				set.add(photo);
+			}
+			serie.setPhotos(set);
+			sr.save(serie);
+			return new ResponseEntity<>(serieToResource(serie, true), HttpStatus.OK);
+		} else {
+			throw new NotFound("/series/" + id);
+		}
 	}
 	
 }

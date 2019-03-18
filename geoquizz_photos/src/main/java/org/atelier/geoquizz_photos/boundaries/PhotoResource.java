@@ -8,4 +8,6 @@ import org.springframework.data.repository.CrudRepository;
 public interface PhotoResource extends CrudRepository<Photo, String>{
 
 	public Optional<Photo> findByToken(String token);
+	
+	public Optional<Photo> findByUrl(String url);
 }

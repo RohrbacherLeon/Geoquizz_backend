@@ -46,13 +46,13 @@ public class UserRepresentation {
 	}
 	
 	private UserMirror userToMirror(User user, boolean token) {
-		UserMirror cm = null;
+		UserMirror um = null;
 		if(!token) {
-			cm = new UserMirror(user.getId(), user.getLogin());
+			um = new UserMirror(user.getId(), user.getLogin());
 		}else {
-			cm = new UserMirrorWithToken(user.getId(), user.getLogin(), user.getToken());
+			um = new UserMirrorWithToken(user.getId(), user.getLogin(), user.getToken());
 		}
-    	return cm;
+    	return um;
     }
 	
 	public Resource<UserMirror> userToResource(User user, boolean collection, boolean showToken) {
@@ -106,7 +106,6 @@ public class UserRepresentation {
 	@PostMapping("/signin")
 	public ResponseEntity<?> tryLogin(@RequestBody User user){
 		Optional<User> query = ur.findByLogin(user.getLogin());
-		System.out.println(query);
 		if(query.isPresent()) {
 			User stored = query.get();
 			stored.setToken(generateToken());
@@ -120,25 +119,5 @@ public class UserRepresentation {
 			throw new NotFound("Aucun compte associé à ce login n'a pu être trouvé.");
 		}
 	}
-	
-	/*@ApiOperation("Upload une photo dans l'espace personnel du user")
-	@PostMapping("/{id}/photos")
-	public ResponseEntity<?> postPhotoForUser(@RequestBody User user, @ApiParam("Id du user") @PathVariable("id") String id, @ApiParam("Token du user") @RequestHeader(value="x-token") String token){
-		Optional<User> query = ur.findById(id);
-		if(query.isPresent()) {
-			User stored = query.get();
-			if(stored.getToken().equals(token)) {
-				if(stored.getPhotos().addAll(user.getPhotos())) {
-					return new ResponseEntity<>(userToResource(stored, false), HttpStatus.OK);
-				} else {
-					throw new BadRequest("Photos fournies incorrectes.");
-				}
-			} else {
-				throw new Unauthorized("Token fourni invalide.");
-			}
-		} else {
-			throw new NotFound("/users/" + id);
-		}
-	}*/
 
 }
