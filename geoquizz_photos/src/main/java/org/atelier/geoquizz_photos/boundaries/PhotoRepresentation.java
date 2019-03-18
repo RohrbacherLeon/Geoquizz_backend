@@ -59,7 +59,7 @@ public class PhotoRepresentation {
 	}
 	
 	private static PhotoMirror photoToMirror(Photo photo) {
-		return new PhotoMirror(photo.getId(), photo.getDescription(), photo.getLongitude(), photo.getLatitude(), photo.getUrl());
+		return new PhotoMirror(photo.getId(), photo.getDescription(), photo.getLongitude(), photo.getLatitude(), photo.getUrl(), photo.getToken());
 	}
 	
 	public static Resource<PhotoMirror> photoToResource(Photo photo, boolean collection){
