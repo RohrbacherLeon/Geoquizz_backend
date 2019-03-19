@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PartieRessource extends JpaRepository<Partie, String>{
 	Optional<Partie> findByIdAndToken(String id, String token);
-	Iterable<Partie> findAllByOrderByScoreAsc();
+	Iterable<Partie> findAllByOrderByScoreDesc();
 }

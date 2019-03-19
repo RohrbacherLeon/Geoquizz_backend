@@ -93,7 +93,7 @@ public class PartieRepresentation {
     public ResponseEntity<?> getAllParties(@ApiParam("True si les parties doivent être classé par score") @RequestParam(value="byScore", required=false)boolean score) throws BadRequest {
 		Iterable<Partie> allParties = null;
 		if(score) {
-			allParties = pr.findAllByOrderByScoreAsc();
+			allParties = pr.findAllByOrderByScoreDesc();
 		}else {			
 			allParties = pr.findAll();
 		}
