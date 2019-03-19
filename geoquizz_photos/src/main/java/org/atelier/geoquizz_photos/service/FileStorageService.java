@@ -9,6 +9,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 import org.atelier.geoquizz_photos.config.FileStorageProperties;
+import org.atelier.geoquizz_photos.exceptions.BadRequest;
 import org.atelier.geoquizz_photos.exceptions.FileStorageException;
 import org.atelier.geoquizz_photos.exceptions.MyFileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +68,12 @@ public class FileStorageService {
     
     private String toUniqueFilename(String filename) {
     	String arr[] = filename.split("\\.");
-    	return "photo_" + UUID.randomUUID().toString() + "." + arr[arr.length - 1];
+    	String extension = arr[arr.length - 1];
+    	if(extension.equals("png") || extension.equals("jpg") || extension.equals("jpeg")) {
+    		return "photo_" + UUID.randomUUID().toString() + "." + extension;
+    	} else {
+    		throw new BadRequest("Le fichier fourni n'est pas une image.");
+    	}
     }
 
 }

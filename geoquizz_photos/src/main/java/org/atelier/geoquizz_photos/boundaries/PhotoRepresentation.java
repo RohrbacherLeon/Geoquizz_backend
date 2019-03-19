@@ -9,9 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.atelier.geoquizz_photos.entities.Photo;
-import org.atelier.geoquizz_photos.entities.Serie;
 import org.atelier.geoquizz_photos.entityMirror.PhotoMirror;
-import org.atelier.geoquizz_photos.entityMirror.SerieMirror;
 import org.atelier.geoquizz_photos.exceptions.NotFound;
 import org.atelier.geoquizz_photos.exceptions.Unauthorized;
 import org.atelier.geoquizz_photos.service.FileStorageService;
