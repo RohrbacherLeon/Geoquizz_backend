@@ -9,13 +9,15 @@ public class PhotoMirror {
 	private float longitude;
 	private float latitude;
 	private String url;
+	private String token;
 	
-	public PhotoMirror(String id,String description, float longitude, float latitude, String url) {
+	public PhotoMirror(String id,String description, float longitude, float latitude, String url, String token) {
 		this.id = id;
 		this.description = description;
 		this.longitude = longitude;
 		this.latitude = latitude;
 		this.url = url;
+		this.token=token;
 	}
 	
 	public String getId() {
@@ -47,5 +49,13 @@ public class PhotoMirror {
 	}
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
 	}
 }
