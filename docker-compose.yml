@@ -24,6 +24,8 @@ services:
       - geoquizz-mysql
     ports: 
       - "8084:8080"
+    volumes:
+      - ./images:/images
   geoquizz-photos:
     build:
       context: ./geoquizz_photos
@@ -32,3 +34,5 @@ services:
       - geoquizz-mysql
     ports: 
       - "8080:8080"
+    volumes:
+      - ./images:/images
