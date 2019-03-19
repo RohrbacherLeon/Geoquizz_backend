@@ -185,13 +185,13 @@ public class PartieRepresentation {
     			p.setJoueur(updatedPartie.getJoueur());
     			p.setScore(updatedPartie.getScore());
     			p.setNb_photos(updatedPartie.getNb_photos());
-    			System.out.println(updatedPartie.getPhotos());
+    			/*System.out.println(updatedPartie.getPhotos());
     			if(updatedPartie.getPhotos() != null)
     				p.setPhotos(updatedPartie.getPhotos());
     			
     			if(updatedPartie.getSerie() != null)
     				p.setSerie(updatedPartie.getSerie());
-    			
+    			*/
     			pr.save(p);
                 responseHeaders.setLocation(linkTo(PartieRepresentation.class).slash(p.getId()).toUri());
                 return new ResponseEntity<>(partieToResource(p, false, true), responseHeaders, HttpStatus.OK);
