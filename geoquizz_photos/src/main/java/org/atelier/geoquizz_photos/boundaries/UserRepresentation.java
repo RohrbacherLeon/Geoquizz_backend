@@ -102,6 +102,14 @@ public class UserRepresentation {
 		}
 	}
 	
+	@GetMapping
+	public ResponseEntity<?> createPassword(@RequestBody User user){
+		
+		user.setLogin(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
+
+		return new ResponseEntity<>(userToResource(user, false, true), HttpStatus.OK);
+	}
+	
 	@ApiOperation("Retourne le user avec son token si son login et mot de passe fournis sont correctes")
 	@PostMapping("/signin")
 	public ResponseEntity<?> tryLogin(@RequestBody User user){
