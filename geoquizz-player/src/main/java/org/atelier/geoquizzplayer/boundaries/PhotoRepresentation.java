@@ -1,5 +1,9 @@
 package org.atelier.geoquizzplayer.boundaries;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
 import org.atelier.geoquizzplayer.entity.Photo;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.hateoas.ExposesResourceFor;
@@ -30,8 +34,9 @@ public class PhotoRepresentation {
 	@GetMapping(value = "/{name}", produces = MediaType.IMAGE_JPEG_VALUE)
     public ResponseEntity<byte[]> getImage(@ApiParam("Nom de l'image avec son extension") @PathVariable("name") String name) throws Exception {
 
-    	ClassPathResource imgFile = new ClassPathResource("images/" + name);
-        byte[] bytes = StreamUtils.copyToByteArray(imgFile.getInputStream());
+        FileInputStream fis = new FileInputStream(new File("/images/"+name));
+
+        byte[] bytes = StreamUtils.copyToByteArray(fis);
 
         return ResponseEntity
                 .ok()

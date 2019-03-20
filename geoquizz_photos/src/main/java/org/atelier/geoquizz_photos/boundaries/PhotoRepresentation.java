@@ -21,6 +21,7 @@ import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -100,7 +101,7 @@ public class PhotoRepresentation {
 	@PostMapping
 	public ResponseEntity<?> postPhoto(@ApiParam("Image à uploader") @RequestPart("file") MultipartFile file){
 		String filename = fileStorageService.storeFile(file);
-		Photo photo = new Photo("", 0, 0, ("/images/" + filename));
+		Photo photo = new Photo("", 0, 0, (filename));
 		photo.setId(UUID.randomUUID().toString());
 		photo.setToken(generateToken());
 		photo.setSerie(sr.findById(AWAITING_DATA).get());
@@ -125,6 +126,18 @@ public class PhotoRepresentation {
 			} else {
 				throw new Unauthorized("Token fourni invalide.");
 			}
+		} else {
+			throw new NotFound("/photos/" + id);
+		}		
+	}
+	
+	@ApiOperation("Suppression d'une photo")
+	@DeleteMapping(value="/{id}")
+	public ResponseEntity<?> deletePhoto(@ApiParam("Token de la photo") @RequestHeader(value="x-token") String token, @ApiParam("Id de la photo") @PathVariable("id") String id){
+		Optional<Photo> query = pr.findById(id);
+		if(query.isPresent()) {
+			pr.delete(query.get());
+			return new ResponseEntity<>(photoToResource(query.get(), false), HttpStatus.OK);
 		} else {
 			throw new NotFound("/photos/" + id);
 		}		
