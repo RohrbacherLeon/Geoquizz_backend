@@ -11,8 +11,8 @@ docker-compose up
 Cette commande lance 3 containers docker qui exposent chacun :  
   
 * la base de données MySql initialisée et prête à l'emploie  
-* l'API de gestion des photos  
-* l'API de gestion du web player  
+* l'API de gestion des photos sur le port 8080
+* l'API de gestion du web player sur le port 8084
 
 ### Sans docker
 Si il vous est impossible d'utiliser docker, veuillez suivre cette procédure pour tester en local :  
