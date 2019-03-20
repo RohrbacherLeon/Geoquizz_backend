@@ -103,7 +103,7 @@ public class PhotoRepresentation {
 	@PostMapping
 	public ResponseEntity<?> postPhoto(@ApiParam("Image à uploader") @RequestPart("file") MultipartFile file){
 		String filename = fileStorageService.storeFile(file);
-		Photo photo = new Photo("", 0, 0, ("/images/" + filename));
+		Photo photo = new Photo("", 0, 0, (filename));
 		photo.setId(UUID.randomUUID().toString());
 		photo.setToken(generateToken());
 		photo.setSerie(sr.findById(AWAITING_DATA).get());
