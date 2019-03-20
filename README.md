@@ -2,6 +2,10 @@
 Backend exposant les API REST de l’atelier.
 
 ## Installation
+Dans un premier temps, il faut generer les .jar des applications :  
+* Positionnez vous dans `/Geoquizz_backend/geoquizz_photos` et lancez la commande : `mvn -DskipTests clean install`
+* Positionnez vous dans `/Geoquizz_backend/geoquizz-player` et lancez la commande : `mvn -DskipTests clean install`
+
 ### Avec docker
 Pour lancer l'ensemble de l'architecture, une seule commande à la racine du projet suffit :
 ```
@@ -23,7 +27,6 @@ Si il vous est impossible d'utiliser docker, veuillez suivre cette procédure po
 * Assurez vous que MySql soit en cours d'execution
 * Lancez les API en vous rendant à la racine de chacune d'entre elles et executez 
 ```
-mvn -DskipTests clean install
 mvn spring-boot:run
 ```
 
