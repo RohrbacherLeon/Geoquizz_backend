@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import org.atelier.geoquizzplayer.EntityMirror.PartieMirroir;
@@ -93,7 +92,7 @@ public class PartieRepresentation {
     public ResponseEntity<?> getAllParties(@ApiParam("True si les parties doivent être classé par score") @RequestParam(value="byScore", required=false)boolean score) throws BadRequest {
 		Iterable<Partie> allParties = null;
 		if(score) {
-			allParties = pr.findAllByOrderByScoreAsc();
+			allParties = pr.findByStatusOrderByScoreDesc(1);
 		}else {			
 			allParties = pr.findAll();
 		}
@@ -103,40 +102,26 @@ public class PartieRepresentation {
 	@ApiOperation(value = "Créer une partie")
 	@PostMapping
     public ResponseEntity<?> postPartie(@RequestBody Partie partie, @ApiParam("Nombre de photo voulus") @RequestParam(value="limit")int limit) throws BadRequest {
-		
 		if(limit <= 0) {
 			throw new BadRequest("Paramètre limit inexistant ou plus petit ou égale à 0");
 		}
-		
 		partie.setId(UUID.randomUUID().toString());
-		
 		String jwtToken = generateToken();
         partie.setToken(jwtToken);
-        
         Partie newPartie = pr.save(partie);
-
         Optional<Serie> serie = sr.findById(partie.getSerie().getId());
-		
-
-		System.out.println(serie.get());
-		
 		if(serie.isPresent()) {
 			List<Photo> photos = new ArrayList<Photo>(serie.get().getPhotos());
-				
 			Collections.shuffle(photos);
-			photos = photos.subList(0, limit);
-			
+			photos = limit < photos.size() ? photos.subList(0, photos.size()) : photos.subList(0, limit);
 			newPartie.setPhotos(new HashSet<Photo>(photos));
 			newPartie.setNb_photos(limit);
-			
 			HttpHeaders responseHeaders = new HttpHeaders();
 			responseHeaders.setLocation(linkTo(PartieRepresentation.class).slash(newPartie.getId()).toUri());
 			return new ResponseEntity<>(newPartie,responseHeaders,HttpStatus.CREATED);
 		} else {
 			throw new NotFound("serie inexistante");
-		}
-        
-        
+		}           
     }
 	
 	@ApiOperation(value = "Récupèrer les informations d'une partie")
