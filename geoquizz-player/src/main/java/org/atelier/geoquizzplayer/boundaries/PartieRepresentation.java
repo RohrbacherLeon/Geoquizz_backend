@@ -113,7 +113,7 @@ public class PartieRepresentation {
 		if(serie.isPresent()) {
 			List<Photo> photos = new ArrayList<Photo>(serie.get().getPhotos());
 			Collections.shuffle(photos);
-			photos = limit < photos.size() ? photos.subList(0, photos.size()) : photos.subList(0, limit);
+			photos = limit > photos.size() ? photos.subList(0, photos.size()) : photos.subList(0, limit);
 			newPartie.setPhotos(new HashSet<Photo>(photos));
 			newPartie.setNb_photos(limit);
 			HttpHeaders responseHeaders = new HttpHeaders();
