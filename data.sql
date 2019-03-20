@@ -52,7 +52,8 @@ CREATE TABLE `partie_photo` (
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `users` (`id`,`login`,`password`,`token`) VALUES
-('6bf43c09-299b-4c74-ad85-97f8e05f27fa', "a", "$2a$10$EhLMPOgycdBlKWXQ9ngixuvDRKQdnLDASE/Nb8epcNC9sCNwKn3ou", NULL);
+('6bf43c09-299b-4c74-ad85-97f8e05f27fa', "a", "$2a$10$EhLMPOgycdBlKWXQ9ngixuvDRKQdnLDASE/Nb8epcNC9sCNwKn3ou", NULL),
+('6bf43c09-299b-4c74-ad85-97f8e05f27fb', "toto", "$2a$10$i4J579X9zuuKlF3kkro6IenLXPjxDbsItxb6dlpJwbROCNDb3q2cC", NULL);
 
 INSERT INTO `series`(`id`, `ville`, `map_long`, `map_lat`) VALUES
 ('0', 'Awaiting_data', 0, 0),
