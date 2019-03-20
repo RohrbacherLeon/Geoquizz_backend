@@ -96,18 +96,9 @@ public class UserRepresentation {
 		} else {
 			user.setId(UUID.randomUUID().toString());
 			user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
-
 			ur.save(user);
 			return new ResponseEntity<>(userToResource(user, false, false), HttpStatus.OK);
 		}
-	}
-	
-	@GetMapping
-	public ResponseEntity<?> createPassword(@RequestBody User user){
-		
-		user.setLogin(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
-
-		return new ResponseEntity<>(userToResource(user, false, true), HttpStatus.OK);
 	}
 	
 	@ApiOperation("Retourne le user avec son token si son login et mot de passe fournis sont correctes")
@@ -126,6 +117,18 @@ public class UserRepresentation {
 		} else {
 			throw new NotFound("Aucun compte associé à ce login n'a pu être trouvé.");
 		}
+	}
+	
+	/**
+	 * Method used to generate a bcrypt hash and jwt token to seed the database
+	 * @param user
+	 * @return
+	 */
+	@GetMapping
+	public ResponseEntity<?> createPasswordAndToken(@RequestBody User user){
+		user.setLogin(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
+		user.setToken(generateToken());
+		return new ResponseEntity<>(userToResource(user, false, true), HttpStatus.OK);
 	}
 
 }
